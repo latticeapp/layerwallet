@@ -17,7 +17,9 @@
 
 import { Metadata } from '@polkadot/metadata';
 import { TypeRegistry } from '@polkadot/types';
+import { RegisteredTypes } from '@polkadot/types/types';
 import { getSpecTypes } from '@polkadot/types-known';
+import { spec } from '@edgeware/node-types';
 import React, { useState } from 'react';
 
 import { deepCopyMap } from 'stores/utils';
@@ -25,43 +27,42 @@ import { SubstrateNetworkParams } from 'types/networkTypes';
 import { getMetadata } from 'utils/identitiesUtils';
 
 //Map PathId to Polkadot.js/api spec names and chain names
-type NetworkTypes = {
-	alias?: string;
-	chains: {
-		[key: string]: string;
-	};
-};
 type NetworkTypesMap = {
-	[key: string]: NetworkTypes;
+	[key: string]: RegisteredTypes;
 };
 const networkTypesMap: NetworkTypesMap = {
-	kusama: { chains: {} },
-	polkadot: { chains: {} },
-	// polkadot: { westend: 'Westend' } },
-	rococo: { chains: {} }
+	edgeware: { ...spec },
+	kulupu: {
+		types: {
+			CampaignIdentifier: '[u8; 4]'
+		}
+	},
+	kusama: {},
+	polkadot: {},
+	rococo: {},
+	westend: {}
 };
 
 export const getOverrideTypes = (
 	registry: TypeRegistry,
-	pathId: string
+	pathId: string,
+	specVersion: number
 ): any => {
-	let specName = '',
-		chainName = '';
+	let specName = '';
+	let chainName = '';
 	Object.entries(networkTypesMap).find(
-		([networkName, networkTypes]: [string, NetworkTypes]) => {
+		([networkName, networkTypes]: [string, RegisteredTypes]) => {
 			if (networkName === pathId) {
-				specName = networkTypes.alias ?? networkName;
-			} else if (networkTypes.chains.hasOwnProperty(pathId)) {
-				const chainAlias = networkTypes.chains[pathId];
-				specName = networkTypes.alias ?? networkName;
-				chainName = chainAlias ?? pathId;
+				specName = networkName;
+				chainName = specName;
+				registry.setKnownTypes(networkTypes);
+				return true;
 			} else {
 				return false;
 			}
-			return true;
 		}
 	);
-	return getSpecTypes(registry, chainName, specName, Number.MAX_SAFE_INTEGER);
+	return getSpecTypes(registry, chainName, specName, specVersion);
 };
 
 export type RegistriesStoreState = {
@@ -69,7 +70,7 @@ export type RegistriesStoreState = {
 	getTypeRegistry: (
 		networks: Map<string, SubstrateNetworkParams>,
 		networkKey: string
-	) => TypeRegistry | null;
+	) => [TypeRegistry, Record<string, string>] | null;
 };
 
 export function useRegistriesStore(): RegistriesStoreState {
@@ -78,23 +79,33 @@ export function useRegistriesStore(): RegistriesStoreState {
 	function getTypeRegistry(
 		networks: Map<string, SubstrateNetworkParams>,
 		networkKey: string
-	): TypeRegistry | null {
+	): [TypeRegistry, Record<string, string>] | null {
 		try {
-			const networkMetadataRaw = getMetadata(networkKey);
+			const foundMetadata = getMetadata(networkKey);
+			if (foundMetadata === null) return null;
+			const [networkMetadataRaw, specVersion] = foundMetadata;
 			if (networkMetadataRaw === null) return null;
-
-			if (registries.has(networkKey)) return registries.get(networkKey)!;
-
 			const networkParams = networks.get(networkKey)!;
+			const metadataKey = `${networkParams.genesisHash}-${specVersion}`;
+			const metadataApiObj = { [metadataKey]: networkMetadataRaw };
+
+			if (registries.has(networkKey)) {
+				return [registries.get(networkKey)!, metadataApiObj];
+			}
+
 			const newRegistry = new TypeRegistry();
-			const overrideTypes = getOverrideTypes(newRegistry, networkParams.pathId);
+			const overrideTypes = getOverrideTypes(
+				newRegistry,
+				networkParams.pathId,
+				specVersion
+			);
 			newRegistry.register(overrideTypes);
 			const metadata = new Metadata(newRegistry, networkMetadataRaw);
 			newRegistry.setMetadata(metadata);
 			const newRegistries = deepCopyMap(registries);
 			newRegistries.set(networkKey, newRegistry);
 			setRegistries(newRegistries);
-			return newRegistry;
+			return [newRegistry, metadataApiObj];
 		} catch (e) {
 			console.log('error', e);
 			return null;

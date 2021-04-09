@@ -36,6 +36,7 @@ import { useScannerContext, ScannerContext } from 'stores/ScannerContext';
 import { useAccountContext, AccountsContext } from 'stores/AccountsContext';
 import { SeedRefsContext, useSeedRefStore } from 'stores/SeedRefStore';
 import { AppProps, getLaunchArgs } from 'e2e/injections';
+import { ApiContext, useApiContext } from 'stores/ApiContext';
 
 const navTheme = DefaultTheme;
 navTheme.colors.background = colors.white;
@@ -62,6 +63,7 @@ export default function App(props: AppProps): React.ReactElement {
 	const accountsContext = useAccountContext();
 	const scannerContext = useScannerContext();
 	const registriesContext = useRegistriesStore();
+	const apiContext = useApiContext();
 
 	const renderStacks = (): React.ReactElement => {
 		return <AppNavigator />;
@@ -73,22 +75,24 @@ export default function App(props: AppProps): React.ReactElement {
 				<ScannerContext.Provider value={scannerContext}>
 					<RegistriesContext.Provider value={registriesContext}>
 						<SeedRefsContext.Provider value={seedRefContext}>
-							<MenuProvider backHandler={true}>
-								<StatusBar
-									barStyle="light-content"
-									backgroundColor={colors.background.app}
-								/>
-								<NavigationContainer theme={navTheme}>
-									{renderStacks()}
-								</NavigationContainer>
-								<FlashMessage
-									position="top"
-									style={{ backgroundColor: colors.background.accentDark }}
-									textStyle={{ fontFamily: fonts.regular }}
-									titleStyle={{ fontFamily: fonts.regular }}
-									duration={3000}
-								/>
-							</MenuProvider>
+							<ApiContext.Provider value={apiContext}>
+								<MenuProvider backHandler={true}>
+									<StatusBar
+										barStyle="light-content"
+										backgroundColor={colors.background.app}
+									/>
+									<NavigationContainer theme={navTheme}>
+										{renderStacks()}
+									</NavigationContainer>
+									<FlashMessage
+										position="top"
+										style={{ backgroundColor: colors.background.accentDark }}
+										textStyle={{ fontFamily: fonts.regular }}
+										titleStyle={{ fontFamily: fonts.regular }}
+										duration={3000}
+									/>
+								</MenuProvider>
+							</ApiContext.Provider>
 						</SeedRefsContext.Provider>
 					</RegistriesContext.Provider>
 				</ScannerContext.Provider>

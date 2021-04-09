@@ -15,15 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, {
+	ReactElement,
+	useContext,
+	useEffect,
+	useMemo,
+	useState
+} from 'react';
 import { View, BackHandler, FlatList, FlatListProps } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import BN from 'bn.js';
 
 import { NetworkCard } from '../components/NetworkCard';
 import OnBoardingView from '../components/OnBoarding';
 import NoCurrentIdentity from '../components/NoCurrentIdentity';
 
-import { components } from 'styles';
+import { components } from 'styles/index';
 import { UnknownNetworkKeys } from 'constants/networkSpecs';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
@@ -34,10 +41,15 @@ import {
 	NetworkParams
 } from 'types/networkTypes';
 import { NavigationProps } from 'types/props';
-import { getExistedNetworkKeys } from 'utils/identitiesUtils';
+import {
+	getAddressWithPath,
+	getExistedNetworkKeys
+} from 'utils/identitiesUtils';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Button from 'components/Button';
 import NavigationTab from 'components/NavigationTab';
+import { ApiContext } from 'stores/ApiContext';
+import { RegistriesContext } from 'stores/RegistriesContext';
 
 const filterNetworks = (
 	networkList: Map<string, NetworkParams>,
@@ -55,11 +67,21 @@ const filterNetworks = (
 		.sort((a, b) => a[1].order - b[1].order);
 };
 
+interface State {
+	freeBalance: string;
+}
+
+const EMPTY_STATE: State = {
+	freeBalance: 'Loading...'
+};
+
 function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const { identities, currentIdentity, loaded } = accountsStore.state;
 	const networkContextState = useContext(NetworksContext);
+	const [balance, setBalance] = useState(EMPTY_STATE);
 	const { allNetworks } = networkContextState;
+
 	// catch android back button and prevent exiting the app
 	useFocusEffect(
 		React.useCallback((): any => {
@@ -87,6 +109,51 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 			}),
 		[availableNetworks, allNetworks]
 	);
+
+	// initialize the API using the first network the user has, if they have any
+	const { initApi, state } = useContext(ApiContext);
+	const { networks } = networkContextState;
+	const { getTypeRegistry } = useContext(RegistriesContext);
+
+	// initialize API (TODO: move out of wallet!)
+	useEffect((): void => {
+		// TODO: make this refresh less often!
+		const firstNetwork = networkList[0];
+		if (!firstNetwork) return;
+		const [networkKey, networkParams] = firstNetwork;
+		if (!isSubstrateNetworkParams(networkParams) || !networkParams.url) return;
+		const registryData = getTypeRegistry(networks, networkKey);
+		if (!registryData) return;
+		const [registry, metadata] = registryData;
+		initApi(networkKey, networkParams.url, registry, metadata);
+	}, [networkList]);
+
+	// initialize balances
+	useEffect((): void => {
+		if (state.isApiReady) {
+			const firstNetwork = networkList[0];
+			if (!firstNetwork) return;
+			const [networkKey, networkParams] = firstNetwork;
+			if (!isSubstrateNetworkParams(networkParams) || !networkParams.url)
+				return;
+			console.log(`Use API: ${networkKey}`);
+			const path = `//${networkParams.pathId}`;
+			const address = getAddressWithPath(path, currentIdentity);
+			const decimals = networkParams.decimals;
+			if (state.api?.derive?.balances) {
+				console.log(`FETCHING BALANCES: ${address}`);
+				state.api.derive.balances.all(address).then(fetchedBalance => {
+					const base = new BN(10).pow(new BN(decimals));
+					const div = fetchedBalance.availableBalance.div(base);
+					const mod = fetchedBalance.availableBalance.mod(base);
+					const nDisplayDecimals = 3;
+					setBalance({
+						freeBalance: div + '.' + mod.toString(10).slice(0, nDisplayDecimals)
+					});
+				});
+			}
+		}
+	}, [state]);
 
 	if (!loaded) return <View />;
 	if (identities.length === 0) return <OnBoardingView />;
@@ -138,6 +205,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 				onPress={(): Promise<void> =>
 					onNetworkChosen(networkKey, networkParams)
 				}
+				balance={balance.freeBalance}
 				title={networkParams.title}
 			/>
 		);

@@ -37,12 +37,14 @@ import {
 
 export function NetworkCard({
 	networkKey,
-	title
+	title,
+	balance
 }: {
 	networkKey?: string;
 	onPress?: ButtonListener;
 	testID?: string;
 	title: string;
+	balance?: string;
 }): ReactElement {
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
 	const networksContextState = useContext(NetworksContext);
@@ -106,9 +108,13 @@ export function NetworkCard({
 							{title}
 						</Text>
 					</View>
-					<View style={styles.contentRow}>
-						<Text style={styles.text}>0 {networkParams.unit}</Text>
-					</View>
+					{isSubstrateNetworkParams(networkParams) && (
+						<View style={styles.contentRow}>
+							<Text style={styles.text}>
+								{balance ?? '...'} {networkParams.unit}
+							</Text>
+						</View>
+					)}
 					<PopupMenu
 						onSelect={onOptionSelect}
 						menuTriggerIconName={'more-vert'}
