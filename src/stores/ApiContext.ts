@@ -101,7 +101,15 @@ export function useApiContext(): ApiContextState {
 
 		console.log(`CREATING API: ${url}`);
 		setState({ apiNetworkKey: networkKey });
-		const provider = new WsProvider(url);
+		const provider = new WsProvider(url, false); // pass autoConnectMs=false to disable automatic reconnect
+		provider
+			.connect()
+			.then(_result => {
+				console.log('WSPROVIDER CONNECTED');
+			})
+			.catch(_error => {
+				console.log('WSPROVIDER DISCONNECTED', _error);
+			});
 		const api = new ApiPromise({
 			metadata,
 			provider,
