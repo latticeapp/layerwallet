@@ -22,7 +22,7 @@ import React, {
 	useMemo,
 	useState
 } from 'react';
-import { View, BackHandler, FlatList, FlatListProps } from 'react-native';
+import { View, Text, BackHandler, FlatList, FlatListProps } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BN from 'bn.js';
 
@@ -126,7 +126,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 		if (!registryData) return;
 		const [registry, metadata] = registryData;
 		initApi(networkKey, networkParams.url, registry, metadata);
-	}, [networkList]);
+	}, [networkList, getTypeRegistry, initApi, networks]);
 
 	// initialize balances
 	useEffect((): void => {
@@ -142,18 +142,24 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 			const decimals = networkParams.decimals;
 			if (state.api?.derive?.balances) {
 				console.log(`FETCHING BALANCES: ${address}`);
-				state.api.derive.balances.all(address).then(fetchedBalance => {
-					const base = new BN(10).pow(new BN(decimals));
-					const div = fetchedBalance.availableBalance.div(base);
-					const mod = fetchedBalance.availableBalance.mod(base);
-					const nDisplayDecimals = 3;
-					setBalance({
-						freeBalance: div + '.' + mod.toString(10).slice(0, nDisplayDecimals)
+				state.api.derive.balances
+					.all(address)
+					.then(fetchedBalance => {
+						const base = new BN(10).pow(new BN(decimals));
+						const div = fetchedBalance.availableBalance.div(base);
+						const mod = fetchedBalance.availableBalance.mod(base);
+						const nDisplayDecimals = 3;
+						setBalance({
+							freeBalance:
+								div + '.' + mod.toString(10).slice(0, nDisplayDecimals)
+						});
+					})
+					.catch(error => {
+						console.log('FETCHING BALANCE ERROR', error);
 					});
-				});
 			}
 		}
-	}, [state]);
+	}, [state, currentIdentity, networkList]);
 
 	if (!loaded) return <View />;
 	if (identities.length === 0) return <OnBoardingView />;
@@ -221,6 +227,12 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 					testID={testIDs.Wallet.chooserScreen}
 					{...getListOptions()}
 				/>
+				<View style={{ padding: 20 }}>
+					<Text>Error: {state.apiError || '-'}</Text>
+					<Text>Connected?: {state.isApiConnected ? 'true' : 'false'}</Text>
+					<Text>Initialized?: {state.isApiInitialized ? 'true' : 'false'}</Text>
+					<Text>Ready?: {state.isApiReady ? 'true' : 'false'}</Text>
+				</View>
 			</View>
 			<NavigationTab />
 		</>
