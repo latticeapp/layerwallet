@@ -26,6 +26,7 @@ import { hexToU8a, u8aConcat } from '@polkadot/util';
 import { checkAddress, decodeAddress } from '@polkadot/util-crypto';
 import { describe, expect, it } from '@jest/globals';
 
+import { isAscii } from 'utils/strings';
 import {
 	SUBSTRATE_NETWORK_LIST,
 	SubstrateNetworkKeys
@@ -40,7 +41,6 @@ import {
 	decodeToString,
 	isJsonString
 } from 'utils/decoders';
-import { isAscii } from 'utils/strings';
 import { kusamaMetadata } from 'constants/networkMetadata';
 
 const SUBSTRATE_ID = new Uint8Array([0x53]);

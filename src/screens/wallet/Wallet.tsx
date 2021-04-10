@@ -26,7 +26,7 @@ import { View, Text, BackHandler, FlatList, FlatListProps } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BN from 'bn.js';
 
-import { NetworkCard } from '../components/NetworkCard';
+import { NetworkCard } from './NetworkCard';
 
 import { components } from 'styles/index';
 import { UnknownNetworkKeys } from 'constants/networkSpecs';

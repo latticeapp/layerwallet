@@ -23,7 +23,7 @@ import {
 } from '@polkadot/util';
 import { encodeAddress } from '@polkadot/util-crypto';
 
-import strings from 'modules/sign/strings';
+import strings from 'screens/signer/strings';
 import { SubstrateNetworkParams } from 'types/networkTypes';
 import {
 	EthereumParsedData,

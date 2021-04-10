@@ -19,9 +19,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
+import { useProcessBarCode } from './utils';
+
 import { colors, components, fonts } from 'styles/index';
 import Button from 'components/Button';
-import { useProcessBarCode } from 'modules/sign/utils';
 import { useInjectionQR } from 'e2e/injections';
 import { NetworksContext } from 'stores/NetworkContext';
 import { ScannerContext } from 'stores/ScannerContext';

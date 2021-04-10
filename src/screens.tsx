@@ -25,7 +25,7 @@ import { Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { colors, fonts } from 'styles/index';
-import Wallet from 'modules/main/screens/Wallet';
+import Wallet from 'screens/wallet/Wallet';
 import AddNetwork from 'screens/AddNetwork';
 import ShowRecoveryPhrase from 'screens/ShowRecoveryPhrase';
 import RenameWallet from 'screens/RenameWallet';
@@ -37,8 +37,8 @@ import CreateWalletImport from 'screens/CreateWalletImport';
 import Settings from 'screens/Settings';
 import ReceiveBalance from 'screens/ReceiveBalance';
 import SendBalance from 'screens/SendBalance';
-import SignTransaction from 'modules/sign/screens/SignTransaction';
-import SignTransactionFinish from 'modules/sign/screens/SignTransactionFinish';
+import SignTransaction from 'screens/signer/SignTransaction';
+import SignTransactionFinish from 'screens/signer/SignTransactionFinish';
 import { RootStackParamList } from 'types/routes';
 
 const ScreenStack = createStackNavigator<RootStackParamList>();

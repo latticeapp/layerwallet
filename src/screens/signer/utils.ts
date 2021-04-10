@@ -18,7 +18,8 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useContext } from 'react';
 
-import strings from 'modules/sign/strings';
+import strings from './strings';
+
 import { AccountsContext } from 'stores/AccountsContext';
 import { NetworksContextState } from 'stores/NetworkContext';
 import { ScannerContext } from 'stores/ScannerContext';

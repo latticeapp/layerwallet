@@ -16,9 +16,9 @@
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
 import React, { useContext, useEffect, useRef } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
-import { components } from 'styles/index';
+import { fontStyles, components } from 'styles/index';
 import testIDs from 'e2e/testIDs';
 import { AccountsContext } from 'stores/AccountsContext';
 import { ScannerContext } from 'stores/ScannerContext';
@@ -26,7 +26,6 @@ import { FoundAccount } from 'types/identityTypes';
 import { NavigationProps, NavigationScannerProps } from 'types/props';
 import QrView from 'components/QrView';
 import CompatibleCard from 'components/CompatibleCard';
-import styles from 'modules/sign/styles';
 import Separator from 'components/Separator';
 
 function SignTransactionFinish(
@@ -79,3 +78,24 @@ function SignTransactionFinishView({
 }
 
 export default SignTransactionFinish;
+
+const styles = StyleSheet.create({
+	body: {
+		paddingTop: 24
+	},
+	bodyContent: {
+		marginVertical: 16,
+		paddingHorizontal: 20
+	},
+	qr: {
+		marginBottom: 8
+	},
+	title: {
+		...fontStyles.h2,
+		paddingBottom: 20
+	},
+	topTitle: {
+		...fontStyles.h2,
+		textAlign: 'center'
+	}
+});

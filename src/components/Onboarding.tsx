@@ -18,12 +18,11 @@
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
 import { fontStyles } from 'styles/index';
 import { SafeAreaScrollViewContainer } from 'components/SafeAreaContainer';
 import testIDs from 'e2e/testIDs';
-import styles from 'modules/main/styles';
 import { RootStackParamList } from 'types/routes';
 
 export default function Onboarding({}: {}): React.ReactElement {
@@ -63,3 +62,17 @@ export default function Onboarding({}: {}): React.ReactElement {
 		</SafeAreaScrollViewContainer>
 	);
 }
+
+const styles = StyleSheet.create({
+	onboardingWrapper: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		flexWrap: 'wrap'
+	},
+	scrollContent: {
+		flex: 1,
+		justifyContent: 'center',
+		padding: 16,
+		paddingBottom: 100
+	}
+});
