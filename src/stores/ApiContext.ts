@@ -153,7 +153,7 @@ export function useApiContext(): ApiContextState {
 		return (): void => {
 			AppState.removeEventListener('change', _handleAppStateChange);
 		};
-	}, [appState]);
+	}, [appState, disconnectAsync, restoreApi]);
 
 	return {
 		disconnect,

@@ -26,7 +26,7 @@ import testIDs from 'e2e/testIDs';
 import styles from 'modules/main/styles';
 import { RootStackParamList } from 'types/routes';
 
-export default function OnBoardingView({}: {}): React.ReactElement {
+export default function Onboarding({}: {}): React.ReactElement {
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
 
 	function TextButton({

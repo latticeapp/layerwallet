@@ -21,8 +21,8 @@ import React, { useContext } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
+import Onboarding from 'components/Onboarding';
 import { colors, components, fontStyles } from 'styles';
-import OnBoardingView from 'modules/main/components/OnBoarding';
 import Button from 'components/Button';
 import ButtonIcon from 'components/ButtonIcon';
 import Separator from 'components/Separator';
@@ -45,7 +45,7 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
 	const { currentIdentity, identities } = accountsStore.state;
-	if (identities.length === 0) return <OnBoardingView />;
+	if (identities.length === 0) return <Onboarding />;
 	if (!currentIdentity) return <View />;
 
 	const renderIdentity = (identity: Identity): React.ReactElement => {

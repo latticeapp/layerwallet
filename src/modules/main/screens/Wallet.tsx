@@ -27,8 +27,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import BN from 'bn.js';
 
 import { NetworkCard } from '../components/NetworkCard';
-import OnBoardingView from '../components/OnBoarding';
-import NoCurrentIdentity from '../components/NoCurrentIdentity';
 
 import { components } from 'styles/index';
 import { UnknownNetworkKeys } from 'constants/networkSpecs';
@@ -47,6 +45,7 @@ import {
 } from 'utils/identitiesUtils';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Button from 'components/Button';
+import Onboarding from 'components/Onboarding';
 import NavigationTab from 'components/NavigationTab';
 import { ApiContext } from 'stores/ApiContext';
 import { RegistriesContext } from 'stores/RegistriesContext';
@@ -162,8 +161,17 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	}, [state, currentIdentity, networkList]);
 
 	if (!loaded) return <View />;
-	if (identities.length === 0) return <OnBoardingView />;
-	if (currentIdentity === null) return <NoCurrentIdentity />;
+	if (identities.length === 0) return <Onboarding />;
+
+	if (currentIdentity === null)
+		return (
+			<>
+				<View style={components.pageWide}>
+					<Text style={fontStyles.quote}>Select a wallet to get started.</Text>
+				</View>
+				<NavigationTab />
+			</>
+		);
 
 	const getListOptions = (): Partial<FlatListProps<any>> => {
 		return {
