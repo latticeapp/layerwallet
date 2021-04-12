@@ -25,6 +25,7 @@ import NavigationBar from 'react-native-navbar-color';
 import FlashMessage from 'react-native-flash-message';
 
 import { AppNavigator } from './screens';
+import LoadingContainer from './screens/LoadingContainer';
 
 import { colors, fonts } from 'styles/index';
 import {
@@ -65,6 +66,17 @@ export default function App(props: AppProps): React.ReactElement {
 	const registriesContext = useRegistriesStore();
 	const apiContext = useApiContext();
 
+	const [hasInitializedOnce, setHasInitializedOnce] = React.useState(true);
+	React.useEffect(() => {
+		if (
+			apiContext.state.isApiInitialized &&
+			apiContext.state.isApiConnected &&
+			apiContext.state.isApiReady
+		) {
+			setHasInitializedOnce(true);
+		}
+	}, [apiContext.state]);
+
 	const renderStacks = (): React.ReactElement => {
 		return <AppNavigator />;
 	};
@@ -82,7 +94,7 @@ export default function App(props: AppProps): React.ReactElement {
 										backgroundColor={colors.background.app}
 									/>
 									<NavigationContainer theme={navTheme}>
-										{renderStacks()}
+										{hasInitializedOnce ? renderStacks() : <LoadingContainer />}
 									</NavigationContainer>
 									<FlashMessage
 										position="top"
