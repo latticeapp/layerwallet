@@ -16,6 +16,7 @@
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
 import React from 'react';
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -32,10 +33,18 @@ export default function NavigationTab(): React.ReactElement {
 	const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 	const route = useRoute();
 
+	const navigateTo = (route) => {
+		ReactNativeHapticFeedback.trigger("impactLight", {
+			enableVibrateFallback: true,
+			ignoreAndroidSystemSettings: false
+		});
+		resetNavigationTo(navigation, route);
+	};
+
 	return (
 		<View style={styles.row}>
 			<TouchableItem
-				onPress={(): void => resetNavigationTo(navigation, 'Wallet')}
+				onPress={(): void => navigateTo('Wallet')}
 				testID={testIDs.NavigationTab.wallet}
 				style={styles.item}
 				disabled={route.name === 'Wallet'}
@@ -62,7 +71,7 @@ export default function NavigationTab(): React.ReactElement {
 				</Text>
 			</TouchableItem>
 			<TouchableItem
-				onPress={(): void => resetNavigationTo(navigation, 'Settings')}
+				onPress={(): void => navigateTo('Settings')}
 				testID={testIDs.NavigationTab.settings}
 				style={styles.item}
 				disabled={route.name === 'Settings'}

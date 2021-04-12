@@ -61,6 +61,7 @@
     "react-native-elements": "^1.2.6",
     "react-native-flash-message": "^0.1.23",
     "react-native-gesture-handler": "^1.6.0",
+    "react-native-haptic-feedback": "^1.11.0",
     "react-native-keyboard-aware-scroll-view": "0.9.3",
     "react-native-navbar-color": "^1.0.3",
     "react-native-popup-menu": "^0.15.6",
