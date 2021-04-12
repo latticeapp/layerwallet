@@ -141,42 +141,40 @@ export default function SignTransaction({
 		missingFramesMessage
 	} = multiFrames;
 	return (
-		<>
+		<View style={{ backgroundColor: colors.text.white, flex: 1 }}>
 			<RNCamera captureAudio={false} onBarCodeRead={onBarCodeRead}>
-				<View style={components.page}>
-					<View style={styles.middle}>
-						<View style={styles.middleLeft} />
-						<View style={styles.middleCenter} />
-						<View style={styles.middleRight} />
-					</View>
-					{isMultipart ? (
-						<View style={styles.bottom}>
-							<Text style={styles.descTitle}>
-								Scanning Multipart Data, Please Hold Still...
-							</Text>
-							<Text style={styles.descSecondary}>
-								{completedFramesCount} / {totalFramesCount} Completed.
-							</Text>
-							<Button
-								onPress={(): void => scannerStore.clearMultipartProgress()}
-								title="Start Over"
-							/>
-						</View>
-					) : (
-						<View style={styles.bottom}>
-							<Text style={styles.descTitle}>Scan QR Code</Text>
-						</View>
-					)}
-					{missedFrames && missedFrames.length >= 1 && (
-						<View style={styles.bottom}>
-							<Text style={styles.descTitle}>
-								Missing following frame(s): {missingFramesMessage}
-							</Text>
-						</View>
-					)}
+				<View style={styles.middle}>
+					<View style={styles.middleLeft} />
+					<View style={styles.middleCenter} />
+					<View style={styles.middleRight} />
 				</View>
+				{isMultipart ? (
+					<View style={styles.bottom}>
+						<Text style={styles.descTitle}>
+							Scanning Multipart Data, Please Hold Still...
+						</Text>
+						<Text style={styles.descSecondary}>
+							{completedFramesCount} / {totalFramesCount} Completed.
+						</Text>
+						<Button
+							onPress={(): void => scannerStore.clearMultipartProgress()}
+							title="Start Over"
+						/>
+					</View>
+				) : (
+					<View style={styles.bottom}>
+						<Text style={styles.descTitle}>Scan QR Code</Text>
+					</View>
+				)}
+				{missedFrames && missedFrames.length >= 1 && (
+					<View style={styles.bottom}>
+						<Text style={styles.descTitle}>
+							Missing following frame(s): {missingFramesMessage}
+						</Text>
+					</View>
+				)}
 			</RNCamera>
-		</>
+		</View>
 	);
 }
 
@@ -185,7 +183,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: colors.background.light,
 		flex: 1,
-		justifyContent: 'center',
+		justifyContent: 'flex-start',
 		paddingHorizontal: 15
 	},
 	descSecondary: {
@@ -198,14 +196,10 @@ const styles = StyleSheet.create({
 		color: colors.text.app,
 		fontFamily: fonts.bold,
 		fontSize: 18,
+		height: 200,
 		paddingBottom: 10,
+		paddingTop: 20,
 		textAlign: 'center'
-	},
-	inactive: {
-		backgroundColor: colors.background.app,
-		flex: 1,
-		flexDirection: 'column',
-		padding: 20
 	},
 	middle: {
 		backgroundColor: 'transparent',
@@ -224,9 +218,5 @@ const styles = StyleSheet.create({
 	middleRight: {
 		backgroundColor: colors.background.light,
 		flex: 1
-	},
-	progress: {
-		alignItems: 'center',
-		justifyContent: 'center'
 	}
 });
