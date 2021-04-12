@@ -47,11 +47,11 @@ export function useApiContext(): ApiContextState {
 	const [state, setState] = useReducer(reducer, initialState);
 
 	// TODO: load an initial context
-	const onConnected = (): void => setState({ isApiConnected: true });
+	const onConnected = (): void => setState({ isApiConnected: true, apiError: null });
 	const onDisconnected = (): void => setState({ isApiConnected: false });
 	const onError = (error: Error): void => setState({ apiError: error.message });
 	const onReady = (): void => {
-		setState({ isApiReady: true });
+		setState({ isApiReady: true, apiError: null });
 		console.log('API READY');
 	};
 
@@ -86,7 +86,7 @@ export function useApiContext(): ApiContextState {
 		api.on('disconnected', onDisconnected);
 		api.on('error', onError);
 		api.on('ready', onReady);
-		setState({ isApiInitialized: true });
+		setState({ isApiInitialized: true, apiError: null });
 		await api.isReady;
 	}
 
@@ -101,7 +101,7 @@ export function useApiContext(): ApiContextState {
 
 		console.log(`CREATING API: ${url}`);
 		setState({ apiNetworkKey: networkKey });
-		const provider = new WsProvider(url, false); // pass autoConnectMs=false to disable automatic reconnect
+		const provider = new WsProvider(url, 3000); // pass autoConnectMs=false to disable automatic reconnect
 		provider
 			.connect()
 			.then(_result => {
@@ -115,14 +115,13 @@ export function useApiContext(): ApiContextState {
 			provider,
 			registry
 		});
-		setState({ api });
 
 		api.on('connected', onConnected);
 		api.on('disconnected', onDisconnected);
 		api.on('error', onError);
 		api.on('ready', onReady);
 
-		setState({ isApiInitialized: true });
+		setState({ api, isApiInitialized: true, apiError: null });
 		return api.isReady;
 	}
 
