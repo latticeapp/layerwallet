@@ -7,7 +7,7 @@ import {
 } from 'constants/networkSpecs';
 import { NetworksContextState } from 'stores/NetworkContext';
 import { AccountsStoreState, FoundAccount, Wallet } from 'types/walletTypes';
-import { NetworkParams, SubstrateNetworkParams } from 'types/networkTypes';
+import { SubstrateNetworkParams } from 'types/networkTypes';
 import { generateAccountId } from 'utils/account';
 import { loadWallets, saveWallets } from 'utils/db';
 import {
@@ -22,8 +22,6 @@ import {
 	deepCopyWallet,
 	emptyWallet,
 	extractAddressFromAccountId,
-	getAddressKeyByPath,
-	getNetworkKey,
 	isEthereumAccountId
 } from 'utils/walletsUtils';
 import { brainWalletAddressWithRef, encryptData } from 'utils/native';
@@ -39,8 +37,7 @@ export type AccountsContextState = {
 	state: AccountsStoreState;
 	deriveEthereumAccount: (
 		createBrainWalletAddress: TryBrainWalletAddress,
-		networkKey: string,
-		allNetworks: Map<string, NetworkParams>
+		networkKey: string
 	) => Promise<void>;
 	getById: (
 		address: string,
@@ -59,22 +56,22 @@ export type AccountsContextState = {
 	selectWallet: (wallet: Wallet) => void;
 	updateNewWallet: (walletUpdate: Partial<Wallet>) => void;
 	updateWalletName: (name: string) => void;
-	updatePathName: (path: string, name: string) => void;
 	deriveNewPath: (
+		networkKey: string,
 		newPath: string,
 		createSubstrateAddress: TrySubstrateAddress,
 		networkParams: SubstrateNetworkParams,
 		name: string
 	) => Promise<void>;
-	deleteWallet: (wallet: Wallet) => Promise<void>;
-	deleteCurrentAddress: () => void;
+	deleteWallet: (wallet: Wallet) => void;
+	clearAddress: () => void;
 };
 
 const defaultAccountState = {
 	currentWallet: null,
-	wallets: [],
 	loaded: false,
-	newWallet: emptyWallet()
+	newWallet: emptyWallet(),
+	wallets: []
 };
 
 export function useAccountContext(): AccountsContextState {
@@ -94,16 +91,14 @@ export function useAccountContext(): AccountsContextState {
 			const currentWallet = wallets.length > 0 ? wallets[0] : null;
 			setState({
 				currentWallet,
-				wallets,
-				loaded: true
+				loaded: true,
+				wallets
 			});
 		};
 		loadInitialContext();
 	}, []);
 
-	function _updateWalletswithCurrentWallet(
-		updatedCurrentWallet: Wallet
-	): void {
+	function _updateWalletswithCurrentWallet(updatedCurrentWallet: Wallet): void {
 		setState({
 			currentWallet: updatedCurrentWallet
 		});
@@ -134,8 +129,7 @@ export function useAccountContext(): AccountsContextState {
 
 	async function deriveEthereumAccount(
 		createBrainWalletAddress: TryBrainWalletAddress,
-		networkKey: string,
-		allNetworks: Map<string, NetworkParams>
+		networkKey: string
 	): Promise<void> {
 		const networkParams = ETHEREUM_NETWORK_LIST[networkKey];
 		const ethereumAddress = await brainWalletAddressWithRef(
@@ -143,22 +137,17 @@ export function useAccountContext(): AccountsContextState {
 		);
 		if (ethereumAddress.address === '') throw new Error(addressGenerateError);
 		const { ethereumChainId } = networkParams;
-		const accountId = generateAccountId(
-			ethereumAddress.address,
-			networkKey,
-			allNetworks
-		);
 		if (state.currentWallet === null) throw new Error(emptyWalletError);
 		const updatedCurrentWallet = deepCopyWallet(state.currentWallet);
-		if (updatedCurrentWallet.meta.has(ethereumChainId))
+		if (updatedCurrentWallet.account?.path === ethereumChainId)
 			throw new Error(accountExistedError);
-		updatedCurrentWallet.meta.set(ethereumChainId, {
+		updatedCurrentWallet.account = {
 			address: ethereumAddress.address,
 			createdAt: new Date().getTime(),
-			name: '',
+			networkKey,
+			path: ethereumChainId,
 			updatedAt: new Date().getTime()
-		});
-		updatedCurrentWallet.addresses.set(accountId, ethereumChainId);
+		};
 		_updateCurrentWallet(updatedCurrentWallet);
 	}
 
@@ -170,52 +159,38 @@ export function useAccountContext(): AccountsContextState {
 		const isAccountId = accountIdOrAddress.split(':').length > 1;
 		let targetAccountId = null;
 		let targetWallet = null;
-		let targetNetworkKey = null;
-		let targetPath = null;
 		for (const wallet of state.wallets) {
-			const searchList = Array.from(wallet.addresses.entries());
-			for (const [addressKey, path] of searchList) {
-				const networkKey = getNetworkKey(path, wallet, networkContext);
-				let accountId, address;
-				if (isEthereumAccountId(addressKey)) {
-					accountId = addressKey;
-					address = extractAddressFromAccountId(addressKey);
-				} else {
-					accountId = generateAccountId(addressKey, networkKey, allNetworks);
-					address = addressKey;
-				}
-				const searchAccountIdOrAddress = isAccountId ? accountId : address;
-				const found = isEthereumAccountId(accountId)
-					? searchAccountIdOrAddress.toLowerCase() ===
-					  accountIdOrAddress.toLowerCase()
-					: searchAccountIdOrAddress === accountIdOrAddress;
-				if (found) {
-					targetPath = path;
-					targetWallet = wallet;
-					targetAccountId = accountId;
-					targetNetworkKey = networkKey;
-					break;
-				}
+			if (!wallet.account) continue;
+			const { address, networkKey } = wallet.account;
+			const currentAccountId = generateAccountId(
+				address,
+				networkKey,
+				allNetworks
+			);
+
+			const searchAccountIdOrAddress = isAccountId ? currentAccountId : address;
+			const found = isEthereumAccountId(currentAccountId)
+				? searchAccountIdOrAddress.toLowerCase() ===
+				  accountIdOrAddress.toLowerCase()
+				: searchAccountIdOrAddress === accountIdOrAddress;
+			if (found) {
+				targetWallet = wallet;
+				targetAccountId = currentAccountId;
+				break;
 			}
 		}
 
-		if (
-			targetPath === null ||
-			targetWallet === null ||
-			targetAccountId === null
-		)
-			return false;
+		if (targetWallet === null || targetAccountId === null) return false;
 		setState({ currentWallet: targetWallet });
 
-		const metaData = targetWallet.meta.get(targetPath);
-		if (metaData === undefined) return false;
+		const account = targetWallet.account;
+		if (account === undefined) return false;
 		return {
 			accountId: targetAccountId,
 			encryptedSeed: targetWallet.encryptedSeed,
-			networkKey: targetNetworkKey!,
-			path: targetPath,
+			name: targetWallet.name,
 			validBip39Seed: true,
-			...metaData
+			...account
 		};
 	}
 
@@ -256,10 +231,13 @@ export function useAccountContext(): AccountsContextState {
 			networkProtocol === NetworkProtocols.SUBSTRATE
 				? extractAddressFromAccountId(accountId)
 				: accountId;
-		return state.wallets.find(wallet => wallet.addresses.has(searchAddress));
+		return state.wallets.find(
+			wallet => wallet?.account?.address === searchAddress
+		);
 	}
 
 	async function _updateWalletPath(
+		networkKey: string,
 		newPath: string,
 		createSubstrateAddress: TrySubstrateAddress,
 		updatedWallet: Wallet,
@@ -267,7 +245,6 @@ export function useAccountContext(): AccountsContextState {
 		networkParams: SubstrateNetworkParams
 	): Promise<Wallet> {
 		const { prefix, pathId } = networkParams;
-		if (updatedWallet.meta.has(newPath)) throw new Error(accountExistedError);
 		let address = '';
 		try {
 			address = await createSubstrateAddress('', prefix);
@@ -279,13 +256,12 @@ export function useAccountContext(): AccountsContextState {
 			address,
 			createdAt: new Date().getTime(),
 			name,
+			networkKey,
 			networkPathId: pathId,
+			path: newPath,
 			updatedAt: new Date().getTime()
 		};
-		// always clear all addresses on switch
-		updatedWallet.meta.clear();
-		updatedWallet.meta.set(newPath, pathMeta);
-		updatedWallet.currentAddress = address;
+		updatedWallet.account = pathMeta;
 		return updatedWallet;
 	}
 
@@ -326,18 +302,8 @@ export function useAccountContext(): AccountsContextState {
 		});
 	}
 
-	function updatePathName(path: string, name: string): void {
-		const updatedCurrentWallet = deepCopyWallet(state.currentWallet!);
-		const updatedPathMeta = Object.assign(
-			{},
-			updatedCurrentWallet.meta.get(path),
-			{ name }
-		);
-		updatedCurrentWallet.meta.set(path, updatedPathMeta);
-		_updateCurrentWallet(updatedCurrentWallet);
-	}
-
 	async function deriveNewPath(
+		networkKey: string,
 		newPath: string,
 		createSubstrateAddress: TrySubstrateAddress,
 		networkParams: SubstrateNetworkParams,
@@ -345,6 +311,7 @@ export function useAccountContext(): AccountsContextState {
 	): Promise<void> {
 		const updatedCurrentWallet = deepCopyWallet(state.currentWallet!);
 		await _updateWalletPath(
+			networkKey,
 			newPath,
 			createSubstrateAddress,
 			updatedCurrentWallet,
@@ -354,18 +321,14 @@ export function useAccountContext(): AccountsContextState {
 		_updateCurrentWallet(updatedCurrentWallet);
 	}
 
-	function deleteCurrentAddress(): void {
+	function clearAddress(): void {
 		if (state.currentWallet === null) throw new Error(emptyWalletError);
 		const updatedCurrentWallet = deepCopyWallet(state.currentWallet);
-		updatedCurrentWallet.meta.clear();
-		updatedCurrentWallet.addresses.clear();
-		updatedCurrentWallet.currentAddress = undefined;
-		updatedCurrentWallet.currentNetworkKey = undefined;
-		updatedCurrentWallet.currentPath = undefined;
+		updatedCurrentWallet.account = undefined;
 		_updateCurrentWallet(updatedCurrentWallet);
 	}
 
-	function deleteWallet(wallet: Wallet): Promise<void> {
+	function deleteWallet(wallet: Wallet): void {
 		const newWallets = deepCopyWallets(state.wallets);
 		const walletIndex = newWallets.findIndex(
 			(i: Wallet) => wallet.encryptedSeed === i.encryptedSeed
@@ -379,8 +342,8 @@ export function useAccountContext(): AccountsContextState {
 	}
 
 	return {
+		clearAddress,
 		clearWallet,
-		deleteCurrentAddress,
 		deleteWallet,
 		deriveEthereumAccount,
 		deriveNewPath,
@@ -390,9 +353,8 @@ export function useAccountContext(): AccountsContextState {
 		saveNewWallet,
 		selectWallet,
 		state,
-		updateWalletName,
 		updateNewWallet,
-		updatePathName
+		updateWalletName
 	};
 }
 

@@ -19,7 +19,7 @@ import React, { useContext } from 'react';
 import { View, Text } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
-import { components } from 'styles';
+import { components } from 'styles/index';
 import { AccountsContext } from 'stores/AccountsContext';
 import Button from 'components/Button';
 import { NavigationAccountWalletProps } from 'types/props';
@@ -31,7 +31,7 @@ function DeleteWallet({ navigation, route }: Props): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const { wallet } = route.params;
 
-	const deleteWallet = async (): Promise<void> => {
+	const deleteWallet = (): void => {
 		try {
 			resetNavigationTo(navigation, 'Settings');
 			accountsStore.deleteWallet(wallet);

@@ -19,7 +19,7 @@ import React, { ReactElement, useContext, useMemo } from 'react';
 import { View, FlatList } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
-import { components } from 'styles';
+import { components } from 'styles/index';
 import Separator from 'components/Separator';
 import { AddNetworkCard } from 'components/AddNetworkCard';
 import { UnknownNetworkKeys } from 'constants/networkSpecs';
@@ -52,7 +52,7 @@ function AddNetwork({
 		networkParams: NetworkParams
 	): Promise<void> => {
 		// remove existing network (TODO: remove)
-		accountsStore.deleteCurrentAddress();
+		accountsStore.clearAddress();
 
 		// add new network
 		if (isSubstrateNetworkParams(networkParams)) {
@@ -61,6 +61,7 @@ function AddNetwork({
 			const fullPath = `//${pathId}`;
 			try {
 				await accountsStore.deriveNewPath(
+					networkKey,
 					fullPath,
 					seedRefHooks.substrateAddress,
 					getSubstrateNetwork(networkKey),
@@ -77,8 +78,7 @@ function AddNetwork({
 			try {
 				await accountsStore.deriveEthereumAccount(
 					seedRefHooks.brainWalletAddress,
-					networkKey,
-					allNetworks
+					networkKey
 				);
 			} catch (error) {
 				showMessage(
@@ -91,8 +91,8 @@ function AddNetwork({
 	};
 
 	const availableNetworks = useMemo(
-		() => getExistedNetworkKeys(currentWallet, networkContextState),
-		[currentWallet, networkContextState]
+		() => getExistedNetworkKeys(currentWallet),
+		[currentWallet]
 	);
 
 	const networkList = Array.from(allNetworks.entries())

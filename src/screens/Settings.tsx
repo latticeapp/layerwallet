@@ -22,7 +22,7 @@ import { StyleSheet, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
 import Onboarding from 'components/Onboarding';
-import { colors, components, fontStyles } from 'styles';
+import { colors, components, fontStyles } from 'styles/index';
 import Button from 'components/Button';
 import ButtonIcon from 'components/ButtonIcon';
 import Separator from 'components/Separator';

@@ -29,7 +29,7 @@ import {
 	unknownNetworkPathId
 } from 'constants/networkSpecs';
 import {
-	AccountMeta,
+	Account,
 	FoundAccount,
 	Wallet,
 	SerializedWallet
@@ -82,7 +82,7 @@ export const extractAddressFromAccountId = (id: string): string => {
 
 export const getAddressKeyByPath = (
 	path: string,
-	pathMeta: AccountMeta,
+	pathMeta: Account,
 	networkContext: NetworksContextState
 ): string => {
 	const { allNetworks } = networkContext;
@@ -98,9 +98,7 @@ export const getAddressKeyByPath = (
 
 export function emptyWallet(): Wallet {
 	return {
-		addresses: new Map(),
 		encryptedSeed: '',
-		meta: new Map(),
 		name: ''
 	};
 }
@@ -164,19 +162,15 @@ export const getNetworkKey = (
 	wallet: Wallet,
 	networkContextState: NetworksContextState
 ): string => {
-	if (wallet.meta.has(path)) {
-		return getNetworkKeyByPath(
-			path,
-			wallet.meta.get(path)!,
-			networkContextState
-		);
+	if (wallet.account?.path === path) {
+		return getNetworkKeyByPath(path, wallet.account!, networkContextState);
 	}
 	return UnknownNetworkKeys.UNKNOWN;
 };
 
 export const getNetworkKeyByPath = (
 	path: string,
-	pathMeta: AccountMeta,
+	pathMeta: Account,
 	networkContextState: NetworksContextState
 ): string => {
 	const { networks, pathIds } = networkContextState;
@@ -200,9 +194,9 @@ export const getAddressWithPath = (
 	wallet: Wallet | null
 ): string => {
 	if (wallet == null) return '';
-	const pathMeta = wallet.meta.get(path);
-	if (!pathMeta) return '';
-	const { address } = pathMeta;
+	const account = wallet.account?.path === path ? wallet.account : undefined;
+	if (!account) return '';
+	const { address } = account;
 	return isEthereumAccountId(address)
 		? extractAddressFromAccountId(address)
 		: address;
@@ -215,24 +209,8 @@ export const getWalletSeed = async (wallet: Wallet): Promise<string> => {
 	return phrase;
 };
 
-export const getExistedNetworkKeys = (
-	wallet: Wallet,
-	networkContextState: NetworksContextState
-): string[] => {
-	const pathEntries = Array.from(wallet.meta.entries());
-	const networkKeysSet = pathEntries.reduce(
-		(networksSet, [path, pathMeta]: [string, AccountMeta]) => {
-			let networkKey;
-			if (isSubstratePath(path)) {
-				networkKey = getNetworkKeyByPath(path, pathMeta, networkContextState);
-			} else {
-				networkKey = path;
-			}
-			return { ...networksSet, [networkKey]: true };
-		},
-		{}
-	);
-	return Object.keys(networkKeysSet);
+export const getExistedNetworkKeys = (wallet: Wallet): string[] => {
+	return wallet.account ? [wallet.account.networkKey] : [];
 };
 
 export const validateDerivedPath = (derivedPath: string): boolean =>
@@ -252,10 +230,10 @@ export const getPathName = (
 ): string => {
 	if (
 		lookUpwallet &&
-		lookUpwallet.meta.has(path) &&
-		lookUpwallet.meta.get(path)!.name !== ''
+		lookUpwallet.account?.path === path &&
+		lookUpwallet.name !== ''
 	) {
-		return lookUpwallet.meta.get(path)!.name;
+		return lookUpwallet.name;
 	}
 	if (!isSubstratePath(path)) return 'No name';
 	if (path === '') return 'Wallet root';

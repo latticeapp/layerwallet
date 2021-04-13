@@ -77,7 +77,7 @@ export function NetworkCard({
 	const onOptionSelect = async (value: string): Promise<void> => {
 		switch (value) {
 			case 'PathDelete':
-				accountsStore.deleteCurrentAddress();
+				accountsStore.clearAddress();
 				resetNavigationTo(navigation, 'Wallet');
 				break;
 			case 'SignTransaction':

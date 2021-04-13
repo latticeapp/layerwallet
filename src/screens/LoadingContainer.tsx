@@ -1,7 +1,7 @@
 import React, { Component, ReactElement } from 'react';
 import { View, Text, Animated } from 'react-native';
 
-import { colors, fonts } from 'styles';
+import { colors, fonts } from 'styles/index';
 
 export default class LoadingContainer extends Component {
 	state = {

@@ -34,15 +34,14 @@ function handleError(e: Error, label: string): any[] {
  *	Wallets Store
  * ========================================
  */
-// TODO: rename storage keys
 const walletsStore = {
-	keychainService: 'parity_signer_identities',
-	sharedPreferencesName: 'parity_signer_identities'
+	keychainService: 'parity_signer_wallets',
+	sharedPreferencesName: 'parity_signer_wallets'
 };
-const currentIdentityStorageLabel = 'identities_v4';
+const currentIdentityStorageLabel = 'wallets_v1';
 
 export async function loadWallets(version = 4): Promise<Wallet[]> {
-	const identityStorageLabel = `identities_v${version}`;
+	const identityStorageLabel = `wallets_v${version}`;
 	try {
 		const wallets = await SecureStorage.getItem(
 			identityStorageLabel,

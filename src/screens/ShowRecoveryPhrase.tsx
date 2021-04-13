@@ -18,7 +18,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-import { components } from 'styles';
+import { components } from 'styles/index';
 import { NavigationProps } from 'types/props';
 import AccountSeedCopyable from 'components/AccountSeedCopyable';
 

@@ -28,7 +28,7 @@ import BN from 'bn.js';
 
 import { NetworkCard } from './NetworkCard';
 
-import { components } from 'styles/index';
+import { components, fontStyles } from 'styles/index';
 import { UnknownNetworkKeys } from 'constants/networkSpecs';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
@@ -39,10 +39,7 @@ import {
 	NetworkParams
 } from 'types/networkTypes';
 import { NavigationProps } from 'types/props';
-import {
-	getAddressWithPath,
-	getExistedNetworkKeys
-} from 'utils/walletsUtils';
+import { getAddressWithPath, getExistedNetworkKeys } from 'utils/walletsUtils';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Button from 'components/Button';
 import Onboarding from 'components/Onboarding';
@@ -94,11 +91,8 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	);
 
 	const availableNetworks = useMemo(
-		() =>
-			currentWallet
-				? getExistedNetworkKeys(currentWallet, networkContextState)
-				: [],
-		[currentWallet, networkContextState]
+		() => (currentWallet ? getExistedNetworkKeys(currentWallet) : []),
+		[currentWallet]
 	);
 
 	const networkList = useMemo(

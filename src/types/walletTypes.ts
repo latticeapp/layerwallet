@@ -17,37 +17,31 @@
 
 import { AccountsContextState } from 'stores/AccountsContext';
 
-export type AccountMeta = {
+export type Account = {
 	address: string;
 	createdAt: number;
-	name: string;
 	updatedAt: number;
+	path: string;
+	networkKey: string;
 	networkPathId?: string;
 };
 
-export interface FoundAccount extends AccountMeta {
+export interface FoundAccount extends Account {
 	accountId: string;
 	encryptedSeed: string;
 	validBip39Seed: true;
-	networkKey: string;
-	path: string;
+	name: string;
 }
 
 export type Wallet = {
-	// TODO: move these current types into a meta type
-	currentAddress?: string;
-	currentNetworkKey?: string;
-	currentPath?: string;
+	account?: Account;
 	encryptedSeed: string;
-	meta: Map<string, AccountMeta>;
-	addresses: Map<string, string>;
 	name: string;
 };
 
 export type SerializedWallet = {
 	encryptedSeed: string;
-	meta: Array<[string, AccountMeta]>;
-	addresses: Array<[string, string]>;
+	account: Account;
 	name: string;
 };
 

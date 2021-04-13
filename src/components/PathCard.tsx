@@ -54,8 +54,7 @@ export default function PathCard({
 	const { isSeedRefValid, substrateAddress } = useSeedRef(wallet.encryptedSeed);
 	const [address, setAddress] = useState('');
 	const computedNetworkKey =
-		networkKey ||
-		getNetworkKeyByPath(path, wallet.meta.get(path)!, networksContext);
+		networkKey || getNetworkKeyByPath(path, wallet.account!, networksContext);
 	useEffect(() => {
 		const getAddress = async (): Promise<void> => {
 			const existedAddress = getAddressWithPath(path, wallet);

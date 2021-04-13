@@ -18,7 +18,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { components } from 'styles';
+import { components } from 'styles/index';
 import { NavigationProps } from 'types/props';
 import { words } from 'utils/native';
 import AccountSeedCopyable from 'components/AccountSeedCopyable';

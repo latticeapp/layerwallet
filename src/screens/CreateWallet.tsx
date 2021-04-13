@@ -18,7 +18,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { View } from 'react-native';
 
-import { components } from 'styles';
+import { components } from 'styles/index';
 import { AccountsContext } from 'stores/AccountsContext';
 import Button from 'components/Button';
 import TextInput from 'components/TextInput';

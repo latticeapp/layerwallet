@@ -18,7 +18,7 @@
 import React, { useContext } from 'react';
 import { View } from 'react-native';
 
-import { components } from 'styles';
+import { components } from 'styles/index';
 import { defaultNetworkKey, UnknownNetworkKeys } from 'constants/networkSpecs';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsStoreStateWithWallet } from 'types/walletTypes';

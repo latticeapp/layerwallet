@@ -20,7 +20,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import Clipboard from '@react-native-community/clipboard';
 
-import { components } from 'styles';
+import { components } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsStoreStateWithWallet } from 'types/walletTypes';
 import { NavigationAccountWalletProps } from 'types/props';

@@ -18,7 +18,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 
-import { fontStyles } from 'styles';
+import { fontStyles } from 'styles/index';
 import AccountIcon from 'components/AccountIcon';
 import TouchableItem from 'components/TouchableItem';
 import { NetworksContext } from 'stores/NetworkContext';

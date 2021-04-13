@@ -20,7 +20,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
-import { components, fonts, colors } from 'styles';
+import { components, fonts, colors } from 'styles/index';
 import TouchableItem from 'components/TouchableItem';
 
 export default function AccountSeedCopyable({
