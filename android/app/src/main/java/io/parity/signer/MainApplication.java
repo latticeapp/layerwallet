@@ -12,6 +12,7 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import android.content.Context;
+import com.mkuczera.RNReactNativeHapticFeedbackPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 

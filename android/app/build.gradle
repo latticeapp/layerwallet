@@ -237,6 +237,7 @@ dependencies {
     }
     androidTestImplementation('com.wix:detox:+') { transitive = true }
     androidTestImplementation 'junit:junit:4.12'
+    compile project(':react-native-haptic-feedback')
 }
 
 configurations.all {
