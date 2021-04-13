@@ -76,7 +76,7 @@ const EMPTY_STATE: State = {
 
 function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
-	const { identities, currentIdentity, loaded } = accountsStore.state;
+	const { wallets, currentWallet, loaded } = accountsStore.state;
 	const networkContextState = useContext(NetworksContext);
 	const [balance, setBalance] = useState(EMPTY_STATE);
 	const { allNetworks } = networkContextState;
@@ -95,10 +95,10 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 
 	const availableNetworks = useMemo(
 		() =>
-			currentIdentity
-				? getExistedNetworkKeys(currentIdentity, networkContextState)
+			currentWallet
+				? getExistedNetworkKeys(currentWallet, networkContextState)
 				: [],
-		[currentIdentity, networkContextState]
+		[currentWallet, networkContextState]
 	);
 
 	const networkList = useMemo(
@@ -137,7 +137,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 				return;
 			console.log(`Use API: ${networkKey}`);
 			const path = `//${networkParams.pathId}`;
-			const address = getAddressWithPath(path, currentIdentity);
+			const address = getAddressWithPath(path, currentWallet);
 			const decimals = networkParams.decimals;
 			if (state.api?.derive?.balances) {
 				console.log(`FETCHING BALANCES: ${address}`);
@@ -158,12 +158,12 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 					});
 			}
 		}
-	}, [state, currentIdentity, networkList]);
+	}, [state, currentWallet, networkList]);
 
 	if (!loaded) return <View />;
-	if (identities.length === 0) return <Onboarding />;
+	if (wallets.length === 0) return <Onboarding />;
 
-	if (currentIdentity === null)
+	if (currentWallet === null)
 		return (
 			<>
 				<View style={components.pageWide}>

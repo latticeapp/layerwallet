@@ -1,7 +1,7 @@
 import { GenericExtrinsicPayload } from '@polkadot/types';
 import { Point, Size } from 'react-native-camera/types';
 
-import { FoundAccount } from 'types/identityTypes';
+import { FoundAccount } from 'types/walletTypes';
 import { Transaction } from 'utils/transaction';
 
 export type Frames = {

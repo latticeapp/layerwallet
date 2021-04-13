@@ -9,8 +9,8 @@ import { NetworksContextState } from 'stores/NetworkContext';
 import {
 	AccountsStoreState,
 	FoundAccount,
-	Identity
-} from 'types/identityTypes';
+	Wallet
+} from 'types/walletTypes';
 import { NetworkParams, SubstrateNetworkParams } from 'types/networkTypes';
 import { generateAccountId } from 'utils/account';
 import { loadIdentities, saveIdentities } from 'utils/db';
@@ -55,14 +55,14 @@ export type AccountsContextState = {
 		address: string,
 		networkContext: NetworksContextState
 	) => false | FoundAccount;
-	getIdentityByAccountId: (accountId: string) => Identity | undefined;
+	getIdentityByAccountId: (accountId: string) => Wallet | undefined;
 	resetCurrentIdentity: () => void;
 	saveNewIdentity: (
 		seedPhrase: string,
 		generateSeedRef: CreateSeedRefWithNewSeed
 	) => Promise<void>;
-	selectIdentity: (identity: Identity) => void;
-	updateNewIdentity: (identityUpdate: Partial<Identity>) => void;
+	selectIdentity: (wallet: Wallet) => void;
+	updateNewIdentity: (identityUpdate: Partial<Wallet>) => void;
 	updateIdentityName: (name: string) => void;
 	updatePathName: (path: string, name: string) => void;
 	deriveNewPath: (
@@ -76,14 +76,14 @@ export type AccountsContextState = {
 		path: string,
 		networkContext: NetworksContextState
 	) => void;
-	deleteWallet: (identity: Identity) => Promise<void>;
+	deleteWallet: (wallet: Wallet) => Promise<void>;
 };
 
 const defaultAccountState = {
-	currentIdentity: null,
-	identities: [],
+	currentWallet: null,
+	wallets: [],
 	loaded: false,
-	newIdentity: emptyIdentity()
+	newWallet: emptyIdentity()
 };
 
 export function useAccountContext(): AccountsContextState {
@@ -99,11 +99,11 @@ export function useAccountContext(): AccountsContextState {
 	const [state, setState] = useReducer(reducer, initialState);
 	useEffect(() => {
 		const loadInitialContext = async (): Promise<void> => {
-			const identities = await loadIdentities();
-			const currentIdentity = identities.length > 0 ? identities[0] : null;
+			const wallets = await loadIdentities();
+			const currentWallet = wallets.length > 0 ? wallets[0] : null;
 			setState({
-				currentIdentity,
-				identities,
+				currentWallet,
+				wallets,
 				loaded: true
 			});
 		};
@@ -111,23 +111,23 @@ export function useAccountContext(): AccountsContextState {
 	}, []);
 
 	function _updateIdentitiesWithCurrentIdentity(
-		updatedCurrentIdentity: Identity
+		updatedCurrentIdentity: Wallet
 	): void {
 		setState({
-			currentIdentity: updatedCurrentIdentity
+			currentWallet: updatedCurrentIdentity
 		});
-		const newIdentities = deepCopyIdentities(state.identities);
-		if (state.currentIdentity === null) return;
+		const newIdentities = deepCopyIdentities(state.wallets);
+		if (state.currentWallet === null) return;
 		const identityIndex = newIdentities.findIndex(
-			(identity: Identity) =>
-				identity.encryptedSeed === state.currentIdentity!.encryptedSeed
+			(wallet: Wallet) =>
+				wallet.encryptedSeed === state.currentWallet!.encryptedSeed
 		);
 		newIdentities.splice(identityIndex, 1, updatedCurrentIdentity);
-		setState({ identities: newIdentities });
+		setState({ wallets: newIdentities });
 		saveIdentities(newIdentities);
 	}
 
-	function _updateCurrentIdentity(updatedIdentity: Identity): void {
+	function _updateCurrentIdentity(updatedIdentity: Wallet): void {
 		try {
 			_updateIdentitiesWithCurrentIdentity(updatedIdentity);
 		} catch (error) {
@@ -136,7 +136,7 @@ export function useAccountContext(): AccountsContextState {
 	}
 
 	function updateIdentityName(name: string): void {
-		const updatedCurrentIdentity = deepCopyIdentity(state.currentIdentity!);
+		const updatedCurrentIdentity = deepCopyIdentity(state.currentWallet!);
 		updatedCurrentIdentity.name = name;
 		_updateCurrentIdentity(updatedCurrentIdentity);
 	}
@@ -157,8 +157,8 @@ export function useAccountContext(): AccountsContextState {
 			networkKey,
 			allNetworks
 		);
-		if (state.currentIdentity === null) throw new Error(emptyIdentityError);
-		const updatedCurrentIdentity = deepCopyIdentity(state.currentIdentity);
+		if (state.currentWallet === null) throw new Error(emptyIdentityError);
+		const updatedCurrentIdentity = deepCopyIdentity(state.currentWallet);
 		if (updatedCurrentIdentity.meta.has(ethereumChainId))
 			throw new Error(accountExistedError);
 		updatedCurrentIdentity.meta.set(ethereumChainId, {
@@ -181,10 +181,10 @@ export function useAccountContext(): AccountsContextState {
 		let targetIdentity = null;
 		let targetNetworkKey = null;
 		let targetPath = null;
-		for (const identity of state.identities) {
-			const searchList = Array.from(identity.addresses.entries());
+		for (const wallet of state.wallets) {
+			const searchList = Array.from(wallet.addresses.entries());
 			for (const [addressKey, path] of searchList) {
-				const networkKey = getNetworkKey(path, identity, networkContext);
+				const networkKey = getNetworkKey(path, wallet, networkContext);
 				let accountId, address;
 				if (isEthereumAccountId(addressKey)) {
 					accountId = addressKey;
@@ -200,7 +200,7 @@ export function useAccountContext(): AccountsContextState {
 					: searchAccountIdOrAddress === accountIdOrAddress;
 				if (found) {
 					targetPath = path;
-					targetIdentity = identity;
+					targetIdentity = wallet;
 					targetAccountId = accountId;
 					targetNetworkKey = networkKey;
 					break;
@@ -214,7 +214,7 @@ export function useAccountContext(): AccountsContextState {
 			targetAccountId === null
 		)
 			return false;
-		setState({ currentIdentity: targetIdentity });
+		setState({ currentWallet: targetIdentity });
 
 		const metaData = targetIdentity.meta.get(targetPath);
 		if (metaData === undefined) return false;
@@ -259,28 +259,28 @@ export function useAccountContext(): AccountsContextState {
 		return _getAccountFromIdentity(address, networkContext);
 	}
 
-	function getIdentityByAccountId(accountId: string): Identity | undefined {
+	function getIdentityByAccountId(accountId: string): Wallet | undefined {
 		const networkProtocol = accountId.split(':')[0];
 		const searchAddress =
 			networkProtocol === NetworkProtocols.SUBSTRATE
 				? extractAddressFromAccountId(accountId)
 				: accountId;
-		return state.identities.find(identity =>
-			identity.addresses.has(searchAddress)
+		return state.wallets.find(wallet =>
+			wallet.addresses.has(searchAddress)
 		);
 	}
 
 	function resetCurrentIdentity(): void {
-		setState({ currentIdentity: null });
+		setState({ currentWallet: null });
 	}
 
 	async function _updateIdentityPath(
 		newPath: string,
 		createSubstrateAddress: TrySubstrateAddress,
-		updatedIdentity: Identity,
+		updatedIdentity: Wallet,
 		name: string,
 		networkParams: SubstrateNetworkParams
-	): Promise<Identity> {
+	): Promise<Wallet> {
 		const { prefix, pathId } = networkParams;
 		if (updatedIdentity.meta.has(newPath)) throw new Error(accountExistedError);
 		let address = '';
@@ -309,43 +309,43 @@ export function useAccountContext(): AccountsContextState {
 		seedPhrase: string,
 		generateSeedRef: CreateSeedRefWithNewSeed
 	): Promise<void> {
-		const updatedIdentity = deepCopyIdentity(state.newIdentity);
+		const updatedIdentity = deepCopyIdentity(state.newWallet);
 		const suri = seedPhrase;
 
 		updatedIdentity.encryptedSeed = await encryptData(suri, PIN);
 		//prevent duplication
 		if (
-			state.identities.find(
+			state.wallets.find(
 				i => i.encryptedSeed === updatedIdentity.encryptedSeed
 			)
 		)
 			throw new Error(duplicatedIdentityError);
 		await generateSeedRef(updatedIdentity.encryptedSeed, PIN);
-		const newIdentities = state.identities.concat(updatedIdentity);
+		const newIdentities = state.wallets.concat(updatedIdentity);
 		setState({
-			currentIdentity: updatedIdentity,
-			identities: newIdentities,
-			newIdentity: emptyIdentity()
+			currentWallet: updatedIdentity,
+			wallets: newIdentities,
+			newWallet: emptyIdentity()
 		});
 		await saveIdentities(newIdentities);
 	}
 
-	function selectIdentity(identity: Identity): void {
-		setState({ currentIdentity: identity });
+	function selectIdentity(wallet: Wallet): void {
+		setState({ currentWallet: wallet });
 	}
 
 	function clearIdentity(): void {
-		setState({ newIdentity: emptyIdentity() });
+		setState({ newWallet: emptyIdentity() });
 	}
 
-	function updateNewIdentity(identityUpdate: Partial<Identity>): void {
+	function updateNewIdentity(identityUpdate: Partial<Wallet>): void {
 		setState({
-			newIdentity: { ...state.newIdentity, ...identityUpdate }
+			newWallet: { ...state.newWallet, ...identityUpdate }
 		});
 	}
 
 	function updatePathName(path: string, name: string): void {
-		const updatedCurrentIdentity = deepCopyIdentity(state.currentIdentity!);
+		const updatedCurrentIdentity = deepCopyIdentity(state.currentWallet!);
 		const updatedPathMeta = Object.assign(
 			{},
 			updatedCurrentIdentity.meta.get(path),
@@ -361,7 +361,7 @@ export function useAccountContext(): AccountsContextState {
 		networkParams: SubstrateNetworkParams,
 		name: string
 	): Promise<void> {
-		const updatedCurrentIdentity = deepCopyIdentity(state.currentIdentity!);
+		const updatedCurrentIdentity = deepCopyIdentity(state.currentWallet!);
 		await _updateIdentityPath(
 			newPath,
 			createSubstrateAddress,
@@ -373,8 +373,8 @@ export function useAccountContext(): AccountsContextState {
 	}
 
 	function deleteEthereumAddress(networkKey): void {
-		if (state.currentIdentity === null) throw new Error(emptyIdentityError);
-		const updatedCurrentIdentity = deepCopyIdentity(state.currentIdentity);
+		if (state.currentWallet === null) throw new Error(emptyIdentityError);
+		const updatedCurrentIdentity = deepCopyIdentity(state.currentWallet);
 
 		updatedCurrentIdentity.meta.delete(networkKey);
 
@@ -393,8 +393,8 @@ export function useAccountContext(): AccountsContextState {
 		path: string,
 		networkContext: NetworksContextState
 	): void {
-		if (state.currentIdentity === null) throw new Error(emptyIdentityError);
-		const updatedCurrentIdentity = deepCopyIdentity(state.currentIdentity);
+		if (state.currentWallet === null) throw new Error(emptyIdentityError);
+		const updatedCurrentIdentity = deepCopyIdentity(state.currentWallet);
 		const pathMeta = updatedCurrentIdentity.meta.get(path);
 		if (pathMeta) {
 			updatedCurrentIdentity.meta.delete(path);
@@ -407,15 +407,15 @@ export function useAccountContext(): AccountsContextState {
 		_updateCurrentIdentity(updatedCurrentIdentity);
 	}
 
-	function deleteWallet(identity: Identity): Promise<void> {
-		const newIdentities = deepCopyIdentities(state.identities);
+	function deleteWallet(wallet: Wallet): Promise<void> {
+		const newIdentities = deepCopyIdentities(state.wallets);
 		const identityIndex = newIdentities.findIndex(
-			(i: Identity) => identity.encryptedSeed === i.encryptedSeed
+			(i: Wallet) => wallet.encryptedSeed === i.encryptedSeed
 		);
 		newIdentities.splice(identityIndex, 1);
 		setState({
-			currentIdentity: newIdentities.length >= 1 ? newIdentities[0] : null,
-			identities: newIdentities
+			currentWallet: newIdentities.length >= 1 ? newIdentities[0] : null,
+			wallets: newIdentities
 		});
 		saveIdentities(newIdentities);
 	}

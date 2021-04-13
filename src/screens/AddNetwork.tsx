@@ -42,10 +42,10 @@ function AddNetwork({
 	route
 }: NavigationAccountIdentityProps<'AddNetwork'>): React.ReactElement {
 	const isNew = route.params?.isNew ?? false;
-	const { currentIdentity } = accountsStore.state;
+	const { currentWallet } = accountsStore.state;
 	const networkContextState = useContext(NetworksContext);
 	const { getSubstrateNetwork, allNetworks } = networkContextState;
-	const seedRefHooks = useSeedRef(currentIdentity.encryptedSeed);
+	const seedRefHooks = useSeedRef(currentWallet.encryptedSeed);
 
 	const onNetworkChosen = async (
 		networkKey: string,
@@ -96,8 +96,8 @@ function AddNetwork({
 	};
 
 	const availableNetworks = useMemo(
-		() => getExistedNetworkKeys(currentIdentity, networkContextState),
-		[currentIdentity, networkContextState]
+		() => getExistedNetworkKeys(currentWallet, networkContextState),
+		[currentWallet, networkContextState]
 	);
 
 	const networkList = Array.from(allNetworks.entries())

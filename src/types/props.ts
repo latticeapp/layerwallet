@@ -9,7 +9,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 
 import { AccountsContextState } from 'stores/AccountsContext';
 import { ScannerContextState } from 'stores/ScannerContext';
-import { AccountsStoreStateWithIdentity, Identity } from 'types/identityTypes';
+import { AccountsStoreStateWithWallet, Wallet } from 'types/walletTypes';
 import { RootStackParamList } from 'types/routes';
 
 export interface NavigationProps<ScreenName extends keyof RootStackParamList> {
@@ -28,13 +28,13 @@ export type FocusListener = (
 export interface NavigationAccountIdentityProps<
 	ScreenName extends keyof RootStackParamList
 > extends NavigationProps<ScreenName> {
-	accountsStore: AccountsStoreStateWithIdentity;
+	accountsStore: AccountsStoreStateWithWallet;
 }
 
 export interface NavigationTargetIdentityProps<
 	ScreenName extends keyof RootStackParamList
 > extends NavigationProps<ScreenName> {
-	targetIdentity: Identity;
+	targetIdentity: Wallet;
 }
 
 export interface NavigationAccountScannerProps<

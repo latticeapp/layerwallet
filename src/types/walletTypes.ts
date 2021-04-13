@@ -33,15 +33,18 @@ export interface FoundAccount extends AccountMeta {
 	path: string;
 }
 
-export type Identity = {
-	// encrypted seed include seedPhrase and password
+export type Wallet = {
+	// TODO: move these current types into a meta type
+	currentAddress: string;
+	currentNetworkKey: string;
+	currentPath: string;
 	encryptedSeed: string;
 	meta: Map<string, AccountMeta>;
 	addresses: Map<string, string>;
 	name: string;
 };
 
-export type SerializedIdentity = {
+export type SerializedWallet = {
 	encryptedSeed: string;
 	meta: Array<[string, AccountMeta]>;
 	addresses: Array<[string, string]>;
@@ -49,14 +52,14 @@ export type SerializedIdentity = {
 };
 
 export type AccountsStoreState = {
-	identities: Identity[];
-	currentIdentity: Identity | null;
+	wallets: Wallet[];
+	currentWallet: Wallet | null;
 	loaded: boolean;
-	newIdentity: Identity;
+	newWallet: Wallet;
 };
 
 type LensSet<T, R> = Omit<T, keyof R> & R;
-export type AccountsStoreStateWithIdentity = LensSet<
+export type AccountsStoreStateWithWallet = LensSet<
 	AccountsContextState,
-	{ state: LensSet<AccountsStoreState, { currentIdentity: Identity }> }
+	{ state: LensSet<AccountsStoreState, { currentWallet: Wallet }> }
 >;

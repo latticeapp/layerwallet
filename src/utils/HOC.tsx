@@ -19,7 +19,7 @@ import React, { useContext } from 'react';
 import { View } from 'react-native';
 
 import { AccountsContext } from 'stores/AccountsContext';
-import { AccountsStoreStateWithIdentity, Identity } from 'types/identityTypes';
+import { AccountsStoreStateWithWallet, Wallet } from 'types/walletTypes';
 import {
 	RegistriesContext,
 	RegistriesStoreState
@@ -39,18 +39,18 @@ export function withRegistriesStore<T extends RegistriesInjectedProps>(
 }
 
 export function withCurrentIdentity<
-	T extends { accountsStore: AccountsStoreStateWithIdentity }
+	T extends { accountsStore: AccountsStoreStateWithWallet }
 >(WrappedComponent: React.ComponentType<T>): React.ComponentType<T> {
 	return (props): React.ReactElement => {
 		const accountsStore = useContext(AccountsContext);
-		const { currentIdentity } = accountsStore.state;
-		if (currentIdentity === null) return <View />;
+		const { currentWallet } = accountsStore.state;
+		if (currentWallet === null) return <View />;
 		return <WrappedComponent {...props} accountsStore={accountsStore} />;
 	};
 }
 
 interface UnlockScreenProps {
-	targetIdentity: Identity;
+	targetIdentity: Wallet;
 }
 
 export function withTargetIdentity<T extends UnlockScreenProps>(
@@ -58,7 +58,7 @@ export function withTargetIdentity<T extends UnlockScreenProps>(
 ): React.ComponentType<T> {
 	return (props): React.ReactElement => {
 		const accountsStore = useContext(AccountsContext);
-		const targetIdentity = accountsStore.state.currentIdentity;
+		const targetIdentity = accountsStore.state.currentWallet;
 		if (!targetIdentity) return <View />;
 		return <WrappedComponent {...props} targetIdentity={targetIdentity} />;
 	};

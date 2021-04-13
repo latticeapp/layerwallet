@@ -22,7 +22,7 @@ import { deserializeIdentities, serializeIdentities } from './identitiesUtils';
 import { mergeNetworks, serializeNetworks } from 'utils/networksUtils';
 import { SUBSTRATE_NETWORK_LIST } from 'constants/networkSpecs';
 import { SubstrateNetworkParams } from 'types/networkTypes';
-import { Identity } from 'types/identityTypes';
+import { Wallet } from 'types/walletTypes';
 
 function handleError(e: Error, label: string): any[] {
 	console.warn(`loading ${label} error`, e);
@@ -40,24 +40,24 @@ const identitiesStore = {
 };
 const currentIdentityStorageLabel = 'identities_v4';
 
-export async function loadIdentities(version = 4): Promise<Identity[]> {
+export async function loadIdentities(version = 4): Promise<Wallet[]> {
 	const identityStorageLabel = `identities_v${version}`;
 	try {
-		const identities = await SecureStorage.getItem(
+		const wallets = await SecureStorage.getItem(
 			identityStorageLabel,
 			identitiesStore
 		);
-		if (!identities) return [];
-		return deserializeIdentities(identities);
+		if (!wallets) return [];
+		return deserializeIdentities(wallets);
 	} catch (e) {
-		return handleError(e, 'identity');
+		return handleError(e, 'wallet');
 	}
 }
 
-export const saveIdentities = (identities: Identity[]): void => {
+export const saveIdentities = (wallets: Wallet[]): void => {
 	SecureStorage.setItem(
 		currentIdentityStorageLabel,
-		serializeIdentities(identities),
+		serializeIdentities(wallets),
 		identitiesStore
 	);
 };

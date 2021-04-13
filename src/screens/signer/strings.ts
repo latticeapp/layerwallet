@@ -5,7 +5,7 @@ const strings = {
 		'Signer does not currently recognize a chain with genesis hash, please add the network first',
 	ERROR_NO_RAW_DATA: 'There is no raw data from the request',
 	ERROR_NO_SENDER_FOUND: 'There is no related account in the app',
-	ERROR_NO_SENDER_IDENTITY: 'There is no related identity in the app',
+	ERROR_NO_SENDER_IDENTITY: 'There is no related wallet in the app',
 	ERROR_TITLE: 'Unable to parse QR data',
 	ERROR_WRONG_RAW:
 		'Frames number is too big, the QR seems not to be a recognized extrinsic raw data',

@@ -24,7 +24,7 @@ import { AccountsContext } from 'stores/AccountsContext';
 import { NetworksContextState } from 'stores/NetworkContext';
 import { ScannerContext } from 'stores/ScannerContext';
 import { SeedRefsContext, SeedRefsState } from 'stores/SeedRefStore';
-import { FoundAccount } from 'types/identityTypes';
+import { FoundAccount } from 'types/walletTypes';
 import { isEthereumNetworkParams } from 'types/networkTypes';
 import { RootStackParamList } from 'types/routes';
 import {
@@ -135,7 +135,7 @@ export function useProcessBarCode(
 		// 1. check if sender existed
 		const senderIdentity = getIdentityFromSender(
 			sender,
-			accountsStore.state.identities
+			accountsStore.state.wallets
 		);
 		if (!senderIdentity) throw new Error(strings.ERROR_NO_SENDER_IDENTITY);
 

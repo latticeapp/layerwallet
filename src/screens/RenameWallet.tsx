@@ -29,10 +29,10 @@ type Props = NavigationAccountIdentityProps<'RenameWallet'>;
 
 function RenameWallet({ navigation, route }: Props): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
-	const { identity } = route.params;
-	const [newIdentityName, setNewIdentityName] = useState(identity?.name || '');
+	const { wallet } = route.params;
+	const [newIdentityName, setNewIdentityName] = useState(wallet?.name || '');
 
-	if (!identity) return <View />;
+	if (!wallet) return <View />;
 
 	const onChangeIdentity = async (name: string): Promise<void> => {
 		setNewIdentityName(name);

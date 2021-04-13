@@ -32,18 +32,18 @@ import {
 	UnknownNetworkKeys,
 	NetworkProtocols
 } from 'constants/networkSpecs';
-import { Identity } from 'types/identityTypes';
+import { Wallet } from 'types/walletTypes';
 import { getAddressWithPath, getNetworkKeyByPath } from 'utils/identitiesUtils';
 import { useSeedRef } from 'utils/seedRefHooks';
 
 export default function PathCard({
-	identity,
+	wallet,
 	isPathValid = true,
 	path,
 	networkKey,
 	testID
 }: {
-	identity: Identity;
+	wallet: Wallet;
 	isPathValid?: boolean;
 	path: string;
 	networkKey?: string;
@@ -51,16 +51,14 @@ export default function PathCard({
 }): React.ReactElement {
 	const networksContext = useContext(NetworksContext);
 	const { networks, allNetworks } = networksContext;
-	const { isSeedRefValid, substrateAddress } = useSeedRef(
-		identity.encryptedSeed
-	);
+	const { isSeedRefValid, substrateAddress } = useSeedRef(wallet.encryptedSeed);
 	const [address, setAddress] = useState('');
 	const computedNetworkKey =
 		networkKey ||
-		getNetworkKeyByPath(path, identity.meta.get(path)!, networksContext);
+		getNetworkKeyByPath(path, wallet.meta.get(path)!, networksContext);
 	useEffect(() => {
 		const getAddress = async (): Promise<void> => {
-			const existedAddress = getAddressWithPath(path, identity);
+			const existedAddress = getAddressWithPath(path, wallet);
 			if (existedAddress !== '') return setAddress(existedAddress);
 			if (isSeedRefValid && isPathValid && networks.has(computedNetworkKey)) {
 				const prefix = networks.get(computedNetworkKey)!.prefix;
@@ -72,7 +70,7 @@ export default function PathCard({
 		getAddress();
 	}, [
 		path,
-		identity,
+		wallet,
 		isPathValid,
 		networkKey,
 		computedNetworkKey,

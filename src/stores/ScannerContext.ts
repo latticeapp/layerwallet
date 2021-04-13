@@ -29,7 +29,7 @@ import React, { useReducer } from 'react';
 import { AccountsContextState } from 'stores/AccountsContext';
 import { ETHEREUM_NETWORK_LIST } from 'constants/networkSpecs';
 import { NetworksContextState } from 'stores/NetworkContext';
-import { FoundAccount } from 'types/identityTypes';
+import { FoundAccount } from 'types/walletTypes';
 import { SubstrateNetworkParams } from 'types/networkTypes';
 import {
 	CompletedParsedData,

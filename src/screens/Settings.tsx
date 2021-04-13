@@ -28,7 +28,7 @@ import ButtonIcon from 'components/ButtonIcon';
 import Separator from 'components/Separator';
 import NavigationTab from 'components/NavigationTab';
 import { AccountsContext } from 'stores/AccountsContext';
-import { Identity } from 'types/identityTypes';
+import { Wallet } from 'types/walletTypes';
 import { NavigationProps } from 'types/props';
 import { RootStackParamList } from 'types/routes';
 import { getIdentitySeed, getIdentityName } from 'utils/identitiesUtils';
@@ -44,21 +44,21 @@ function ButtonWithArrow(props: {
 function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
-	const { currentIdentity, identities } = accountsStore.state;
-	if (identities.length === 0) return <Onboarding />;
-	if (!currentIdentity) return <View />;
+	const { currentWallet, wallets } = accountsStore.state;
+	if (wallets.length === 0) return <Onboarding />;
+	if (!currentWallet) return <View />;
 
-	const renderIdentity = (identity: Identity): React.ReactElement => {
-		const title = getIdentityName(identity, identities);
+	const renderIdentity = (wallet: Wallet): React.ReactElement => {
+		const title = getIdentityName(wallet, wallets);
 		const showRecoveryPhrase = async (
-			targetIdentity: Identity
+			targetIdentity: Wallet
 		): Promise<void> => {
 			const seedPhrase = await getIdentitySeed(targetIdentity);
 			navigation.navigate('ShowRecoveryPhrase', { seedPhrase });
 		};
 
 		return (
-			<View key={identity.encryptedSeed}>
+			<View key={wallet.encryptedSeed}>
 				<View style={styles.card}>
 					<ButtonIcon
 						title={title}
@@ -68,23 +68,23 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 						style={styles.indentedButton}
 						textStyle={fontStyles.h2}
 					/>
-					{currentIdentity.encryptedSeed !== identity.encryptedSeed ? (
+					{currentWallet.encryptedSeed !== wallet.encryptedSeed ? (
 						<ButtonWithArrow
 							title="Select this wallet"
 							onPress={(): void => {
-								accountsStore.selectIdentity(identity);
+								accountsStore.selectIdentity(wallet);
 								showMessage('Wallet switched.');
 							}}
 						/>
 					) : null}
-					{currentIdentity.encryptedSeed === identity.encryptedSeed ? (
+					{currentWallet.encryptedSeed === wallet.encryptedSeed ? (
 						<>
 							<ButtonWithArrow
 								title="Rename"
 								onPress={(): void =>
 									navigation.navigate('RenameWallet', {
 										accountsStore,
-										identity,
+										wallet,
 										navigation
 									})
 								}
@@ -94,14 +94,14 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 								onPress={(): void =>
 									navigation.navigate('DeleteWallet', {
 										accountsStore,
-										identity,
+										wallet,
 										navigation
 									})
 								}
 							/>
 							<ButtonWithArrow
 								title="Show Recovery Phrase"
-								onPress={(): Promise<void> => showRecoveryPhrase(identity)}
+								onPress={(): Promise<void> => showRecoveryPhrase(wallet)}
 							/>
 						</>
 					) : null}
@@ -114,7 +114,7 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 	return (
 		<>
 			<View style={components.pageWideFullBleed}>
-				{identities.map(renderIdentity)}
+				{wallets.map(renderIdentity)}
 				<View style={{ paddingHorizontal: 32, paddingVertical: 16 }}>
 					<Button
 						title="Add wallet"

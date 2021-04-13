@@ -22,7 +22,7 @@ import Clipboard from '@react-native-community/clipboard';
 
 import { components } from 'styles';
 import { NetworksContext } from 'stores/NetworkContext';
-import { AccountsStoreStateWithIdentity } from 'types/identityTypes';
+import { AccountsStoreStateWithWallet } from 'types/walletTypes';
 import { NavigationAccountIdentityProps } from 'types/props';
 import { withCurrentIdentity } from 'utils/HOC';
 import { getNetworkKey } from 'utils/identitiesUtils';
@@ -32,7 +32,7 @@ import TextInput from 'components/TextInput';
 interface Props {
 	path: string;
 	networkKey: string;
-	accountsStore: AccountsStoreStateWithIdentity;
+	accountsStore: AccountsStoreStateWithWallet;
 }
 
 function SendBalance({
@@ -43,7 +43,7 @@ function SendBalance({
 	const networksContextState = useContext(NetworksContext);
 	const networkKey = getNetworkKey(
 		path,
-		accountsStore.state.currentIdentity,
+		accountsStore.state.currentWallet,
 		networksContextState
 	);
 	const networkParams = networksContextState.getNetwork(networkKey ?? '');

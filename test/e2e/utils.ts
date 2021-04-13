@@ -118,7 +118,7 @@ export const launchWithScanRequest = async (
 };
 
 export const testRecoverIdentity = (): void => {
-	it('recover a identity with seed phrase', async () => {
+	it('recover a wallet with seed phrase', async () => {
 		await testTap(Wallet.recoverButton);
 		await testVisible(CreateWallet.seedInput);
 		await testInput(CreateWallet.nameInput, mockIdentityName);

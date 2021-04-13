@@ -22,11 +22,11 @@ import { fontStyles, components } from 'styles/index';
 import testIDs from 'e2e/testIDs';
 import { AccountsContext } from 'stores/AccountsContext';
 import { ScannerContext } from 'stores/ScannerContext';
-import { FoundAccount } from 'types/identityTypes';
 import { NavigationProps, NavigationScannerProps } from 'types/props';
+import { FoundAccount } from 'types/walletTypes';
 import QrView from 'components/QrView';
-import CompatibleCard from 'components/CompatibleCard';
 import Separator from 'components/Separator';
+import PathCard from 'components/PathCard';
 
 function SignTransactionFinish(
 	props: NavigationProps<'SignTransactionFinish'>
@@ -56,12 +56,13 @@ function SignTransactionFinishView({
 	scannerStore
 }: Props): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
+	const wallet = accountsStore.getIdentityByAccountId(sender.accountId)!;
 	const { signedData } = scannerStore.state;
 
 	return (
 		<View style={components.pageWide}>
 			<Text style={styles.topTitle}>Signed extrinsic</Text>
-			<CompatibleCard account={sender} accountsStore={accountsStore} />
+			<PathCard wallet={wallet} path={sender.path} />
 			<Separator
 				shadow={true}
 				style={{

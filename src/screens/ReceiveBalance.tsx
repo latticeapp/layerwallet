@@ -21,7 +21,7 @@ import { View } from 'react-native';
 import { components } from 'styles';
 import { defaultNetworkKey, UnknownNetworkKeys } from 'constants/networkSpecs';
 import { NetworksContext } from 'stores/NetworkContext';
-import { AccountsStoreStateWithIdentity } from 'types/identityTypes';
+import { AccountsStoreStateWithWallet } from 'types/walletTypes';
 import { NavigationAccountIdentityProps } from 'types/props';
 import { withCurrentIdentity } from 'utils/HOC';
 import {
@@ -37,7 +37,7 @@ import QrView from 'components/QrView';
 interface Props {
 	path: string;
 	networkKey: string;
-	accountsStore: AccountsStoreStateWithIdentity;
+	accountsStore: AccountsStoreStateWithWallet;
 }
 
 function ReceiveBalance({
@@ -48,12 +48,12 @@ function ReceiveBalance({
 	const networksContextState = useContext(NetworksContext);
 	const networkKey = getNetworkKey(
 		path,
-		accountsStore.state.currentIdentity,
+		accountsStore.state.currentWallet,
 		networksContextState
 	);
-	const { currentIdentity } = accountsStore.state;
-	const address = getAddressWithPath(path, currentIdentity);
-	const accountName = getPathName(path, currentIdentity);
+	const { currentWallet } = accountsStore.state;
+	const address = getAddressWithPath(path, currentWallet);
+	const accountName = getPathName(path, currentWallet);
 	const { allNetworks } = networksContextState;
 	if (!address) return <View />;
 	const isUnknownNetwork = networkKey === UnknownNetworkKeys.UNKNOWN;
@@ -66,7 +66,7 @@ function ReceiveBalance({
 
 	return (
 		<View style={components.pageWide}>
-			<PathCard identity={currentIdentity} path={path} />
+			<PathCard wallet={currentWallet} path={path} />
 			<QrView data={`${accountId}:${accountName}`} />
 			{isUnknownNetwork && <UnknownAccountWarning isPath />}
 		</View>

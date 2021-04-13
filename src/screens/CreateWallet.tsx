@@ -30,12 +30,12 @@ function CreateWallet({
 }: NavigationProps<'CreateWallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const clearIdentity = useRef(() => {
-		const newIdentity = emptyIdentity();
-		const currentAccounts = accountsStore.state.currentIdentity
-			? Array.from(accountsStore.state.currentIdentity.addresses.entries())
+		const newWallet = emptyIdentity();
+		const currentAccounts = accountsStore.state.currentWallet
+			? Array.from(accountsStore.state.currentWallet.addresses.entries())
 			: [];
-		newIdentity.name = `Wallet ${currentAccounts.length + 1}`;
-		return accountsStore.updateNewIdentity(newIdentity);
+		newWallet.name = `Wallet ${currentAccounts.length + 1}`;
+		return accountsStore.updateNewIdentity(newWallet);
 	});
 
 	useEffect((): (() => void) => {
@@ -51,7 +51,7 @@ function CreateWallet({
 		<View style={components.page}>
 			<TextInput
 				onChangeText={updateName}
-				value={accountsStore.state.newIdentity.name}
+				value={accountsStore.state.newWallet.name}
 				placeholder="Wallet name"
 				autofocus={true}
 			/>

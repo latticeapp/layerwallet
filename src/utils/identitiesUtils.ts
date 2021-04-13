@@ -31,9 +31,9 @@ import {
 import {
 	AccountMeta,
 	FoundAccount,
-	Identity,
-	SerializedIdentity
-} from 'types/identityTypes';
+	Wallet,
+	SerializedWallet
+} from 'types/walletTypes';
 import {
 	edgewareMetadata,
 	kulupuMetadata,
@@ -96,7 +96,7 @@ export const getAddressKeyByPath = (
 		  );
 };
 
-export function emptyIdentity(): Identity {
+export function emptyIdentity(): Wallet {
 	return {
 		addresses: new Map(),
 		encryptedSeed: '',
@@ -105,46 +105,46 @@ export function emptyIdentity(): Identity {
 	};
 }
 
-const serializeIdentity = (identity: Identity): SerializedIdentity =>
-	Object.entries(identity).reduce((newIdentity: any, entry: [string, any]) => {
+const serializeIdentity = (wallet: Wallet): SerializedWallet =>
+	Object.entries(wallet).reduce((newWallet: any, entry: [string, any]) => {
 		const [key, value] = entry;
 		if (value instanceof Map) {
-			newIdentity[key] = Array.from(value.entries());
+			newWallet[key] = Array.from(value.entries());
 		} else {
-			newIdentity[key] = value;
+			newWallet[key] = value;
 		}
-		return newIdentity;
+		return newWallet;
 	}, {});
 
-const deserializeIdentity = (identityJSON: SerializedIdentity): Identity =>
+const deserializeIdentity = (identityJSON: SerializedWallet): Wallet =>
 	Object.entries(identityJSON).reduce(
-		(newIdentity: any, entry: [string, any]) => {
+		(newWallet: any, entry: [string, any]) => {
 			const [key, value] = entry;
 			if (value instanceof Array) {
-				newIdentity[key] = new Map(value);
+				newWallet[key] = new Map(value);
 			} else {
-				newIdentity[key] = value;
+				newWallet[key] = value;
 			}
-			return newIdentity;
+			return newWallet;
 		},
 		{}
 	);
 
-export const serializeIdentities = (identities: Identity[]): string => {
-	const identitiesWithObject = identities.map(serializeIdentity);
+export const serializeIdentities = (wallets: Wallet[]): string => {
+	const identitiesWithObject = wallets.map(serializeIdentity);
 	return JSON.stringify(identitiesWithObject);
 };
 
-export const deserializeIdentities = (identitiesJSON: string): Identity[] => {
+export const deserializeIdentities = (identitiesJSON: string): Wallet[] => {
 	const identitiesWithObject = JSON.parse(identitiesJSON);
 	return identitiesWithObject.map(deserializeIdentity);
 };
 
-export const deepCopyIdentities = (identities: Identity[]): Identity[] =>
-	deserializeIdentities(serializeIdentities(identities));
+export const deepCopyIdentities = (wallets: Wallet[]): Wallet[] =>
+	deserializeIdentities(serializeIdentities(wallets));
 
-export const deepCopyIdentity = (identity: Identity): Identity =>
-	deserializeIdentity(serializeIdentity(identity));
+export const deepCopyIdentity = (wallet: Wallet): Wallet =>
+	deserializeIdentity(serializeIdentity(wallet));
 
 export const getSubstrateNetworkKeyByPathId = (
 	pathId: string,
@@ -164,13 +164,13 @@ export const getSubstrateNetworkKeyByPathId = (
 
 export const getNetworkKey = (
 	path: string,
-	identity: Identity,
+	wallet: Wallet,
 	networkContextState: NetworksContextState
 ): string => {
-	if (identity.meta.has(path)) {
+	if (wallet.meta.has(path)) {
 		return getNetworkKeyByPath(
 			path,
-			identity.meta.get(path)!,
+			wallet.meta.get(path)!,
 			networkContextState
 		);
 	}
@@ -194,16 +194,16 @@ export const getNetworkKeyByPath = (
 
 export const getIdentityFromSender = (
 	sender: FoundAccount,
-	identities: Identity[]
-): Identity | undefined =>
-	identities.find(i => i.encryptedSeed === sender.encryptedSeed);
+	wallets: Wallet[]
+): Wallet | undefined =>
+	wallets.find(i => i.encryptedSeed === sender.encryptedSeed);
 
 export const getAddressWithPath = (
 	path: string,
-	identity: Identity | null
+	wallet: Wallet | null
 ): string => {
-	if (identity == null) return '';
-	const pathMeta = identity.meta.get(path);
+	if (wallet == null) return '';
+	const pathMeta = wallet.meta.get(path);
 	if (!pathMeta) return '';
 	const { address } = pathMeta;
 	return isEthereumAccountId(address)
@@ -211,18 +211,18 @@ export const getAddressWithPath = (
 		: address;
 };
 
-export const getIdentitySeed = async (identity: Identity): Promise<string> => {
-	const { encryptedSeed } = identity;
+export const getIdentitySeed = async (wallet: Wallet): Promise<string> => {
+	const { encryptedSeed } = wallet;
 	const seed = await decryptData(encryptedSeed, PIN);
 	const { phrase } = parseSURI(seed);
 	return phrase;
 };
 
 export const getExistedNetworkKeys = (
-	identity: Identity,
+	wallet: Wallet,
 	networkContextState: NetworksContextState
 ): string[] => {
-	const pathEntries = Array.from(identity.meta.entries());
+	const pathEntries = Array.from(wallet.meta.entries());
 	const networkKeysSet = pathEntries.reduce(
 		(networksSet, [path, pathMeta]: [string, AccountMeta]) => {
 			let networkKey;
@@ -242,19 +242,19 @@ export const validateDerivedPath = (derivedPath: string): boolean =>
 	pathsRegex.validateDerivedPath.test(derivedPath);
 
 export const getIdentityName = (
-	identity: Identity,
-	identities: Identity[]
+	wallet: Wallet,
+	wallets: Wallet[]
 ): string => {
-	if (identity.name) return identity.name;
-	const identityIndex = identities.findIndex(
-		i => i.encryptedSeed === identity.encryptedSeed
+	if (wallet.name) return wallet.name;
+	const identityIndex = wallets.findIndex(
+		i => i.encryptedSeed === wallet.encryptedSeed
 	);
 	return `Wallet #${identityIndex + 1}`;
 };
 
 export const getPathName = (
 	path: string,
-	lookUpIdentity: Identity | null
+	lookUpIdentity: Wallet | null
 ): string => {
 	if (
 		lookUpIdentity &&
@@ -264,7 +264,7 @@ export const getPathName = (
 		return lookUpIdentity.meta.get(path)!.name;
 	}
 	if (!isSubstratePath(path)) return 'No name';
-	if (path === '') return 'Identity root';
+	if (path === '') return 'Wallet root';
 	return extractSubPathName(path);
 };
 

@@ -2,8 +2,8 @@ export type RootStackParamList = {
 	Wallet: undefined;
 	AddNetwork: { isNew: boolean } | undefined;
 	ShowRecoveryPhrase: { seedPhrase: string };
-	RenameWallet: { identity };
-	DeleteWallet: { identity };
+	RenameWallet: { wallet };
+	DeleteWallet: { wallet };
 	CreateWallet: undefined;
 	CreateWallet2: undefined;
 	CreateWallet3: { seedPhrase: string };

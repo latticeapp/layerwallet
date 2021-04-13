@@ -29,12 +29,12 @@ type Props = NavigationAccountIdentityProps<'DeleteWallet'>;
 
 function DeleteWallet({ navigation, route }: Props): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
-	const { identity } = route.params;
+	const { wallet } = route.params;
 
 	const deleteWallet = async (): Promise<void> => {
 		try {
 			resetNavigationTo(navigation, 'Settings');
-			accountsStore.deleteWallet(identity);
+			accountsStore.deleteWallet(wallet);
 			showMessage('Wallet deleted.');
 		} catch (err) {
 			console.error(err);
