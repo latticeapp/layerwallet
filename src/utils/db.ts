@@ -40,7 +40,7 @@ const walletsStore = {
 };
 const currentIdentityStorageLabel = 'wallets_v1';
 
-export async function loadWallets(version = 4): Promise<Wallet[]> {
+export async function loadWallets(version = 1): Promise<Wallet[]> {
 	const identityStorageLabel = `wallets_v${version}`;
 	try {
 		const wallets = await SecureStorage.getItem(

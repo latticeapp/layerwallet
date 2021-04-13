@@ -15,53 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
-import React, {
-	ReactElement,
-	useContext,
-	useEffect,
-	useMemo,
-	useState
-} from 'react';
-import { View, Text, BackHandler, FlatList, FlatListProps } from 'react-native';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import { View, Text, BackHandler } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BN from 'bn.js';
 
 import { NetworkCard } from './NetworkCard';
 
 import { components, fontStyles } from 'styles/index';
-import { UnknownNetworkKeys } from 'constants/networkSpecs';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
 import testIDs from 'e2e/testIDs';
 import {
 	isEthereumNetworkParams,
-	isSubstrateNetworkParams,
-	NetworkParams
+	isSubstrateNetworkParams
 } from 'types/networkTypes';
 import { NavigationProps } from 'types/props';
-import { getAddressWithPath, getExistedNetworkKeys } from 'utils/walletsUtils';
+import { getAddressWithPath } from 'utils/walletsUtils';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Button from 'components/Button';
 import Onboarding from 'components/Onboarding';
 import NavigationTab from 'components/NavigationTab';
 import { ApiContext } from 'stores/ApiContext';
 import { RegistriesContext } from 'stores/RegistriesContext';
-
-const filterNetworks = (
-	networkList: Map<string, NetworkParams>,
-	extraFilter?: (networkKey: string, shouldExclude: boolean) => boolean
-): Array<[string, NetworkParams]> => {
-	const excludedNetworks = [UnknownNetworkKeys.UNKNOWN];
-	const filterNetworkKeys = ([networkKey]: [string, any]): boolean => {
-		const shouldExclude = excludedNetworks.includes(networkKey);
-		if (extraFilter !== undefined)
-			return extraFilter(networkKey, shouldExclude);
-		return !shouldExclude;
-	};
-	return Array.from(networkList.entries())
-		.filter(filterNetworkKeys)
-		.sort((a, b) => a[1].order - b[1].order);
-};
 
 interface State {
 	freeBalance: string;
@@ -90,18 +66,8 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 		}, [])
 	);
 
-	const availableNetworks = useMemo(
-		() => (currentWallet ? getExistedNetworkKeys(currentWallet) : []),
-		[currentWallet]
-	);
-
-	const networkList = useMemo(
-		() =>
-			filterNetworks(allNetworks, networkKey => {
-				return availableNetworks.includes(networkKey);
-			}),
-		[availableNetworks, allNetworks]
-	);
+	const networkKey = currentWallet?.account?.networkKey;
+	const networkParams = networkKey ? allNetworks.get(networkKey)! : undefined;
 
 	// initialize the API using the first network the user has, if they have any
 	const { initApi, state } = useContext(ApiContext);
@@ -111,22 +77,18 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	// initialize API (TODO: move out of wallet!)
 	useEffect((): void => {
 		// TODO: make this refresh less often!
-		const firstNetwork = networkList[0];
-		if (!firstNetwork) return;
-		const [networkKey, networkParams] = firstNetwork;
+		if (!networkKey || !networkParams) return;
 		if (!isSubstrateNetworkParams(networkParams) || !networkParams.url) return;
 		const registryData = getTypeRegistry(networks, networkKey);
 		if (!registryData) return;
 		const [registry, metadata] = registryData;
 		initApi(networkKey, networkParams.url, registry, metadata);
-	}, [networkList, getTypeRegistry, initApi, networks]);
+	}, [networkKey, networkParams, getTypeRegistry, initApi, networks]);
 
 	// initialize balances
 	useEffect((): void => {
 		if (state.isApiReady) {
-			const firstNetwork = networkList[0];
-			if (!firstNetwork) return;
-			const [networkKey, networkParams] = firstNetwork;
+			if (!networkKey || !networkParams) return;
 			if (!isSubstrateNetworkParams(networkParams) || !networkParams.url)
 				return;
 			console.log(`Use API: ${networkKey}`);
@@ -152,7 +114,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 					});
 			}
 		}
-	}, [state, currentWallet, networkList]);
+	}, [state, currentWallet, networkKey, networkParams]);
 
 	if (!loaded) return <View />;
 	if (wallets.length === 0) return <Onboarding />;
@@ -167,24 +129,8 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 			</>
 		);
 
-	const getListOptions = (): Partial<FlatListProps<any>> => {
-		return {
-			ListFooterComponent: (
-				<View style={{ marginBottom: 12, paddingHorizontal: 15 }}>
-					<Button
-						title="Switch network"
-						onPress={(): void => navigation.navigate('AddNetwork')}
-						fluid={true}
-					/>
-				</View>
-			)
-		};
-	};
-
-	const onNetworkChosen = async (
-		networkKey: string,
-		networkParams: NetworkParams
-	): Promise<void> => {
+	const onNetworkChosen = (): void => {
+		if (!networkKey || !networkParams) return;
 		if (isSubstrateNetworkParams(networkParams)) {
 			// navigate to substrate account
 			const { pathId } = networkParams;
@@ -196,12 +142,8 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 		}
 	};
 
-	const renderNetwork = ({
-		item
-	}: {
-		item: [string, NetworkParams];
-	}): ReactElement => {
-		const [networkKey, networkParams] = item;
+	const renderNetwork = (): ReactElement => {
+		if (!networkKey || !networkParams) return <View />; // should never reach
 		const networkIndexSuffix = isEthereumNetworkParams(networkParams)
 			? networkParams.ethereumChainId
 			: networkParams.pathId;
@@ -210,9 +152,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 				key={networkKey}
 				testID={testIDs.Wallet.networkButton + networkIndexSuffix}
 				networkKey={networkKey}
-				onPress={(): Promise<void> =>
-					onNetworkChosen(networkKey, networkParams)
-				}
+				onPress={(): void => onNetworkChosen()}
 				balance={balance.freeBalance}
 				title={networkParams.title}
 			/>
@@ -222,13 +162,14 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	return (
 		<>
 			<View style={components.pageWide}>
-				<FlatList
-					data={networkList}
-					keyExtractor={(item: [string, NetworkParams]): string => item[0]}
-					renderItem={renderNetwork}
-					testID={testIDs.Wallet.chooserScreen}
-					{...getListOptions()}
-				/>
+				{networkKey && networkParams && renderNetwork()}
+				<View style={{ marginBottom: 12, paddingHorizontal: 15 }}>
+					<Button
+						title="Switch network"
+						onPress={(): void => navigation.navigate('AddNetwork')}
+						fluid={true}
+					/>
+				</View>
 				<View style={{ padding: 20 }}>
 					<Text>Error: {state.apiError || '-'}</Text>
 					<Text>Connected?: {state.isApiConnected ? 'true' : 'false'}</Text>
