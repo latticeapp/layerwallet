@@ -45,7 +45,7 @@ import {
 	isJsonString,
 	rawDataToU8A
 } from 'utils/decoders';
-import { getIdentityFromSender } from 'utils/identitiesUtils';
+import { getWalletFromSender } from 'utils/walletsUtils';
 import { SeedRefClass } from 'utils/native';
 
 function getSeedRef(
@@ -133,11 +133,11 @@ export function useProcessBarCode(
 		const isEthereum = isEthereumNetworkParams(senderNetworkParams);
 
 		// 1. check if sender existed
-		const senderIdentity = getIdentityFromSender(
+		const senderWallet = getWalletFromSender(
 			sender,
 			accountsStore.state.wallets
 		);
-		if (!senderIdentity) throw new Error(strings.ERROR_NO_SENDER_IDENTITY);
+		if (!senderWallet) throw new Error(strings.ERROR_NO_SENDER_IDENTITY);
 
 		let seedRef = getSeedRef(sender.encryptedSeed, seedRefs);
 		// 2. unlock and get Seed reference

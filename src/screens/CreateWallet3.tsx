@@ -40,7 +40,7 @@ function CreateWallet3({
 			return showMessage('This key phrase does not match the original seed.');
 		}
 		try {
-			await accountsStore.saveNewIdentity(
+			await accountsStore.saveNewWallet(
 				route.params.seedPhrase,
 				createSeedRefWithNewSeed
 			);

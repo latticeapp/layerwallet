@@ -22,10 +22,10 @@ import { showMessage } from 'react-native-flash-message';
 import { components } from 'styles';
 import { AccountsContext } from 'stores/AccountsContext';
 import Button from 'components/Button';
-import { NavigationAccountIdentityProps } from 'types/props';
+import { NavigationAccountWalletProps } from 'types/props';
 import { resetNavigationTo } from 'utils/navigationHelpers';
 
-type Props = NavigationAccountIdentityProps<'DeleteWallet'>;
+type Props = NavigationAccountWalletProps<'DeleteWallet'>;
 
 function DeleteWallet({ navigation, route }: Props): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);

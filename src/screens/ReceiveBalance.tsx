@@ -22,13 +22,13 @@ import { components } from 'styles';
 import { defaultNetworkKey, UnknownNetworkKeys } from 'constants/networkSpecs';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsStoreStateWithWallet } from 'types/walletTypes';
-import { NavigationAccountIdentityProps } from 'types/props';
-import { withCurrentIdentity } from 'utils/HOC';
+import { NavigationAccountWalletProps } from 'types/props';
+import { withCurrentWallet } from 'utils/HOC';
 import {
 	getAddressWithPath,
 	getNetworkKey,
 	getPathName
-} from 'utils/identitiesUtils';
+} from 'utils/walletsUtils';
 import { generateAccountId } from 'utils/account';
 import { UnknownAccountWarning } from 'components/Warnings';
 import PathCard from 'components/PathCard';
@@ -43,7 +43,7 @@ interface Props {
 function ReceiveBalance({
 	accountsStore,
 	route
-}: NavigationAccountIdentityProps<'ReceiveBalance'>): React.ReactElement {
+}: NavigationAccountWalletProps<'ReceiveBalance'>): React.ReactElement {
 	const path = route.params.path;
 	const networksContextState = useContext(NetworksContext);
 	const networkKey = getNetworkKey(
@@ -73,4 +73,4 @@ function ReceiveBalance({
 	);
 }
 
-export default withCurrentIdentity(ReceiveBalance);
+export default withCurrentWallet(ReceiveBalance);

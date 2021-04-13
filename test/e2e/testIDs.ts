@@ -20,27 +20,21 @@ const testIDs = {
 		accountList: 'accountList'
 	},
 	Alert: {
-		backupDoneButton: 'alert_identity_backup_done',
+		backupDoneButton: 'alert_wallet_backup_done',
 		deleteAccount: 'alert_delete_account',
 		deleteConfirmation: 'alert_delete_confirmation',
-		deleteWallet: 'alert_delete_identity'
+		deleteWallet: 'alert_delete_wallet'
 	},
 	CreateWallet: {
-		createButton: 'identity_new_create_button',
-		nameInput: 'identity_new_name_input',
-		passwordInput: 'identity_new_password_input',
-		recoverButton: 'identity_new_recover_button',
-		scrollScreen: 'identity_new_scroll_screen',
-		seedInput: 'identity_new_seed_input'
+		createButton: 'wallet_new_create_button',
+		nameInput: 'wallet_new_name_input',
+		passwordInput: 'wallet_new_password_input',
+		recoverButton: 'wallet_new_recover_button',
+		scrollScreen: 'wallet_new_scroll_screen',
+		seedInput: 'wallet_new_seed_input'
 	},
 	Header: {
 		headerBackButton: 'header_back_button'
-	},
-	IdentitiesSwitch: {
-		addIdentityButton: 'identities_switch_add_identity',
-		manageIdentityButton: 'identities_switch_manager_button',
-		modal: 'identity_switch_modal',
-		toggleButton: 'identities_switch_toggle_button'
 	},
 	NavigationTab: {
 		settings: 'navigation_tab_settings',
@@ -54,13 +48,13 @@ const testIDs = {
 		screen: 'path_detail_screen'
 	},
 	RenameWallet: {
-		deleteButton: 'identity_management_delete_button',
-		popupMenuButton: 'identity_management_popup_menu'
+		deleteButton: 'wallet_management_delete_button',
+		popupMenuButton: 'wallet_management_popup_menu'
 	},
 	ShowRecoveryPhrase: {
-		nextButton: 'identity_backup_next',
-		passwordInput: 'identity_backup_password_input',
-		seedText: 'identity_backup_seed'
+		nextButton: 'wallet_backup_next',
+		passwordInput: 'wallet_backup_password_input',
+		seedText: 'wallet_backup_seed'
 	},
 	SignTransaction: {
 		networkAddSuccessButton: 'qr_scanner_add_network_button'

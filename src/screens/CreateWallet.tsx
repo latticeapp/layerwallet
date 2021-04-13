@@ -23,28 +23,26 @@ import { AccountsContext } from 'stores/AccountsContext';
 import Button from 'components/Button';
 import TextInput from 'components/TextInput';
 import { NavigationProps } from 'types/props';
-import { emptyIdentity } from 'utils/identitiesUtils';
+import { emptyWallet } from 'utils/walletsUtils';
 
 function CreateWallet({
 	navigation
 }: NavigationProps<'CreateWallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
-	const clearIdentity = useRef(() => {
-		const newWallet = emptyIdentity();
-		const currentAccounts = accountsStore.state.currentWallet
-			? Array.from(accountsStore.state.currentWallet.addresses.entries())
-			: [];
-		newWallet.name = `Wallet ${currentAccounts.length + 1}`;
-		return accountsStore.updateNewIdentity(newWallet);
+	const clearWallet = useRef(() => {
+		const newWallet = emptyWallet();
+		// TODO: ensure this name generation works as expected
+		newWallet.name = `Wallet ${accountsStore.state.wallets.length + 1}`;
+		return accountsStore.updateNewWallet(newWallet);
 	});
 
 	useEffect((): (() => void) => {
-		clearIdentity.current();
-		return clearIdentity.current;
-	}, [clearIdentity]);
+		clearWallet.current();
+		return clearWallet.current;
+	}, [clearWallet]);
 
 	const updateName = (name: string): void => {
-		accountsStore.updateNewIdentity({ name });
+		accountsStore.updateNewWallet({ name });
 	};
 
 	return (

@@ -24,7 +24,7 @@ import React, { useState } from 'react';
 
 import { deepCopyMap } from 'stores/utils';
 import { SubstrateNetworkParams } from 'types/networkTypes';
-import { getMetadata } from 'utils/identitiesUtils';
+import { getMetadata } from 'utils/walletsUtils';
 
 //Map PathId to Polkadot.js/api spec names and chain names
 type NetworkTypesMap = {

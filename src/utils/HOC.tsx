@@ -38,7 +38,7 @@ export function withRegistriesStore<T extends RegistriesInjectedProps>(
 	};
 }
 
-export function withCurrentIdentity<
+export function withCurrentWallet<
 	T extends { accountsStore: AccountsStoreStateWithWallet }
 >(WrappedComponent: React.ComponentType<T>): React.ComponentType<T> {
 	return (props): React.ReactElement => {
@@ -50,16 +50,16 @@ export function withCurrentIdentity<
 }
 
 interface UnlockScreenProps {
-	targetIdentity: Wallet;
+	targetWallet: Wallet;
 }
 
-export function withTargetIdentity<T extends UnlockScreenProps>(
+export function withTargetWallet<T extends UnlockScreenProps>(
 	WrappedComponent: React.ComponentType<T>
 ): React.ComponentType<T> {
 	return (props): React.ReactElement => {
 		const accountsStore = useContext(AccountsContext);
-		const targetIdentity = accountsStore.state.currentWallet;
-		if (!targetIdentity) return <View />;
-		return <WrappedComponent {...props} targetIdentity={targetIdentity} />;
+		const targetWallet = accountsStore.state.currentWallet;
+		if (!targetWallet) return <View />;
+		return <WrappedComponent {...props} targetWallet={targetWallet} />;
 	};
 }

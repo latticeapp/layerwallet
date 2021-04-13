@@ -77,15 +77,7 @@ export function NetworkCard({
 	const onOptionSelect = async (value: string): Promise<void> => {
 		switch (value) {
 			case 'PathDelete':
-				if (isSubstrateNetworkParams(networkParams)) {
-					const { pathId } = networkParams;
-					accountsStore.deleteSubstratePath(
-						`//${pathId}`,
-						networksContextState
-					);
-				} else {
-					accountsStore.deleteEthereumAddress(networkKey);
-				}
+				accountsStore.deleteCurrentAddress();
 				resetNavigationTo(navigation, 'Wallet');
 				break;
 			case 'SignTransaction':

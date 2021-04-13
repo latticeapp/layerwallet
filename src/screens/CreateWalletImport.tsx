@@ -51,15 +51,15 @@ function CreateWalletImport({
 		debouncedAddressGeneration();
 	};
 
-	const onRecoverIdentity = async (): Promise<void> => {
+	const onRecoverWallet = async (): Promise<void> => {
 		try {
 			if (isSeedValid.bip39) {
-				await accountsStore.saveNewIdentity(
+				await accountsStore.saveNewWallet(
 					seedPhrase.trimEnd(),
 					createSeedRefWithNewSeed
 				);
 			} else {
-				await accountsStore.saveNewIdentity(
+				await accountsStore.saveNewWallet(
 					seedPhrase,
 					createSeedRefWithNewSeed
 				);
@@ -75,7 +75,7 @@ function CreateWalletImport({
 		if (!isSeedValid.valid) {
 			return showMessage(isSeedValid.reason);
 		}
-		return onRecoverIdentity();
+		return onRecoverWallet();
 	};
 
 	return (

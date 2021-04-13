@@ -24,9 +24,9 @@ import {
 	SubstrateNetworkKeys
 } from 'constants/networkSpecs';
 
-const { IdentityPin, CreateWallet, Wallet, PathDetail } = testIDs;
+const { WalletPin, CreateWallet, Wallet, PathDetail } = testIDs;
 
-export const mockIdentityName = 'mockIdentity';
+export const mockWalletName = 'mockWallet';
 export const mockSeedPhrase =
 	'ability cave solid soccer gloom thought response hard around minor want welcome';
 export const pinCode = '000000';
@@ -89,12 +89,12 @@ export const testScrollAndTap = async (
 };
 
 export const testUnlockPin = async (inputPin: string): Promise<void> => {
-	// await testInput(IdentityPin.unlockPinInput, inputPin);
-	await element(by.id(IdentityPin.unlockPinInput)).typeText(inputPin);
+	// await testInput(WalletPin.unlockPinInput, inputPin);
+	await element(by.id(WalletPin.unlockPinInput)).typeText(inputPin);
 };
 
 export const testSetUpDefaultPath = async (): Promise<void> => {
-	await testInputWithDone(IdentityPin.confirmPin, pinCode);
+	await testInputWithDone(WalletPin.confirmPin, pinCode);
 	await testVisible(Wallet.chooserScreen);
 	await testScrollAndTap(
 		substrateNetworkButtonIndex,
@@ -117,11 +117,11 @@ export const launchWithScanRequest = async (
 	});
 };
 
-export const testRecoverIdentity = (): void => {
+export const testRecoverWallet = (): void => {
 	it('recover a wallet with seed phrase', async () => {
 		await testTap(Wallet.recoverButton);
 		await testVisible(CreateWallet.seedInput);
-		await testInput(CreateWallet.nameInput, mockIdentityName);
+		await testInput(CreateWallet.nameInput, mockWalletName);
 		await element(by.id(CreateWallet.seedInput)).typeText(mockSeedPhrase);
 		await element(by.id(CreateWallet.seedInput)).tapReturnKey();
 		await testSetUpDefaultPath();

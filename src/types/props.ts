@@ -25,16 +25,16 @@ export type FocusListener = (
 	event: NativeSyntheticEvent<TextInputFocusEventData>
 ) => void;
 
-export interface NavigationAccountIdentityProps<
+export interface NavigationAccountWalletProps<
 	ScreenName extends keyof RootStackParamList
 > extends NavigationProps<ScreenName> {
 	accountsStore: AccountsStoreStateWithWallet;
 }
 
-export interface NavigationTargetIdentityProps<
+export interface NavigationTargetWalletProps<
 	ScreenName extends keyof RootStackParamList
 > extends NavigationProps<ScreenName> {
-	targetIdentity: Wallet;
+	targetWallet: Wallet;
 }
 
 export interface NavigationAccountScannerProps<

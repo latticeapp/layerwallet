@@ -96,7 +96,7 @@ export const getAddressKeyByPath = (
 		  );
 };
 
-export function emptyIdentity(): Wallet {
+export function emptyWallet(): Wallet {
 	return {
 		addresses: new Map(),
 		encryptedSeed: '',
@@ -105,7 +105,7 @@ export function emptyIdentity(): Wallet {
 	};
 }
 
-const serializeIdentity = (wallet: Wallet): SerializedWallet =>
+const serializeWallet = (wallet: Wallet): SerializedWallet =>
 	Object.entries(wallet).reduce((newWallet: any, entry: [string, any]) => {
 		const [key, value] = entry;
 		if (value instanceof Map) {
@@ -116,35 +116,32 @@ const serializeIdentity = (wallet: Wallet): SerializedWallet =>
 		return newWallet;
 	}, {});
 
-const deserializeIdentity = (identityJSON: SerializedWallet): Wallet =>
-	Object.entries(identityJSON).reduce(
-		(newWallet: any, entry: [string, any]) => {
-			const [key, value] = entry;
-			if (value instanceof Array) {
-				newWallet[key] = new Map(value);
-			} else {
-				newWallet[key] = value;
-			}
-			return newWallet;
-		},
-		{}
-	);
+const deserializeWallet = (walletJSON: SerializedWallet): Wallet =>
+	Object.entries(walletJSON).reduce((newWallet: any, entry: [string, any]) => {
+		const [key, value] = entry;
+		if (value instanceof Array) {
+			newWallet[key] = new Map(value);
+		} else {
+			newWallet[key] = value;
+		}
+		return newWallet;
+	}, {});
 
-export const serializeIdentities = (wallets: Wallet[]): string => {
-	const identitiesWithObject = wallets.map(serializeIdentity);
-	return JSON.stringify(identitiesWithObject);
+export const serializeWallets = (wallets: Wallet[]): string => {
+	const walletsWithObject = wallets.map(serializeWallet);
+	return JSON.stringify(walletsWithObject);
 };
 
-export const deserializeIdentities = (identitiesJSON: string): Wallet[] => {
-	const identitiesWithObject = JSON.parse(identitiesJSON);
-	return identitiesWithObject.map(deserializeIdentity);
+export const deserializeWallets = (walletsJSON: string): Wallet[] => {
+	const walletsWithObject = JSON.parse(walletsJSON);
+	return walletsWithObject.map(deserializeWallet);
 };
 
-export const deepCopyIdentities = (wallets: Wallet[]): Wallet[] =>
-	deserializeIdentities(serializeIdentities(wallets));
+export const deepCopyWallets = (wallets: Wallet[]): Wallet[] =>
+	deserializeWallets(serializeWallets(wallets));
 
-export const deepCopyIdentity = (wallet: Wallet): Wallet =>
-	deserializeIdentity(serializeIdentity(wallet));
+export const deepCopyWallet = (wallet: Wallet): Wallet =>
+	deserializeWallet(serializeWallet(wallet));
 
 export const getSubstrateNetworkKeyByPathId = (
 	pathId: string,
@@ -192,7 +189,7 @@ export const getNetworkKeyByPath = (
 	return getSubstrateNetworkKeyByPathId(pathId, networks);
 };
 
-export const getIdentityFromSender = (
+export const getWalletFromSender = (
 	sender: FoundAccount,
 	wallets: Wallet[]
 ): Wallet | undefined =>
@@ -211,7 +208,7 @@ export const getAddressWithPath = (
 		: address;
 };
 
-export const getIdentitySeed = async (wallet: Wallet): Promise<string> => {
+export const getWalletSeed = async (wallet: Wallet): Promise<string> => {
 	const { encryptedSeed } = wallet;
 	const seed = await decryptData(encryptedSeed, PIN);
 	const { phrase } = parseSURI(seed);
@@ -241,27 +238,24 @@ export const getExistedNetworkKeys = (
 export const validateDerivedPath = (derivedPath: string): boolean =>
 	pathsRegex.validateDerivedPath.test(derivedPath);
 
-export const getIdentityName = (
-	wallet: Wallet,
-	wallets: Wallet[]
-): string => {
+export const getWalletName = (wallet: Wallet, wallets: Wallet[]): string => {
 	if (wallet.name) return wallet.name;
-	const identityIndex = wallets.findIndex(
+	const walletIndex = wallets.findIndex(
 		i => i.encryptedSeed === wallet.encryptedSeed
 	);
-	return `Wallet #${identityIndex + 1}`;
+	return `Wallet #${walletIndex + 1}`;
 };
 
 export const getPathName = (
 	path: string,
-	lookUpIdentity: Wallet | null
+	lookUpwallet: Wallet | null
 ): string => {
 	if (
-		lookUpIdentity &&
-		lookUpIdentity.meta.has(path) &&
-		lookUpIdentity.meta.get(path)!.name !== ''
+		lookUpwallet &&
+		lookUpwallet.meta.has(path) &&
+		lookUpwallet.meta.get(path)!.name !== ''
 	) {
-		return lookUpIdentity.meta.get(path)!.name;
+		return lookUpwallet.meta.get(path)!.name;
 	}
 	if (!isSubstratePath(path)) return 'No name';
 	if (path === '') return 'Wallet root';

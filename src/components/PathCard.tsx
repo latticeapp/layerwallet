@@ -33,7 +33,7 @@ import {
 	NetworkProtocols
 } from 'constants/networkSpecs';
 import { Wallet } from 'types/walletTypes';
-import { getAddressWithPath, getNetworkKeyByPath } from 'utils/identitiesUtils';
+import { getAddressWithPath, getNetworkKeyByPath } from 'utils/walletsUtils';
 import { useSeedRef } from 'utils/seedRefHooks';
 
 export default function PathCard({

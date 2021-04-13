@@ -42,7 +42,7 @@ import { NavigationProps } from 'types/props';
 import {
 	getAddressWithPath,
 	getExistedNetworkKeys
-} from 'utils/identitiesUtils';
+} from 'utils/walletsUtils';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Button from 'components/Button';
 import Onboarding from 'components/Onboarding';

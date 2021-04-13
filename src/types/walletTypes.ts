@@ -35,9 +35,9 @@ export interface FoundAccount extends AccountMeta {
 
 export type Wallet = {
 	// TODO: move these current types into a meta type
-	currentAddress: string;
-	currentNetworkKey: string;
-	currentPath: string;
+	currentAddress?: string;
+	currentNetworkKey?: string;
+	currentPath?: string;
 	encryptedSeed: string;
 	meta: Map<string, AccountMeta>;
 	addresses: Map<string, string>;

@@ -23,24 +23,24 @@ import { components } from 'styles';
 import { AccountsContext } from 'stores/AccountsContext';
 import Button from 'components/Button';
 import TextInput from 'components/TextInput';
-import { NavigationAccountIdentityProps } from 'types/props';
+import { NavigationAccountWalletProps } from 'types/props';
 
-type Props = NavigationAccountIdentityProps<'RenameWallet'>;
+type Props = NavigationAccountWalletProps<'RenameWallet'>;
 
 function RenameWallet({ navigation, route }: Props): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const { wallet } = route.params;
-	const [newIdentityName, setNewIdentityName] = useState(wallet?.name || '');
+	const [newWalletName, setNewWalletName] = useState(wallet?.name || '');
 
 	if (!wallet) return <View />;
 
-	const onChangeIdentity = async (name: string): Promise<void> => {
-		setNewIdentityName(name);
+	const onChangeWallet = async (name: string): Promise<void> => {
+		setNewWalletName(name);
 	};
 
-	const onSaveIdentity = async (): Promise<void> => {
+	const onSaveWallet = async (): Promise<void> => {
 		try {
-			accountsStore.updateIdentityName(newIdentityName);
+			accountsStore.updateWalletName(newWalletName);
 			showMessage('Wallet renamed.');
 			navigation.goBack();
 		} catch (err) {
@@ -52,12 +52,12 @@ function RenameWallet({ navigation, route }: Props): React.ReactElement {
 		<View style={components.page}>
 			<TextInput
 				label="Display Name"
-				onChangeText={onChangeIdentity}
-				value={newIdentityName}
+				onChangeText={onChangeWallet}
+				value={newWalletName}
 				placeholder="Enter a new wallet name"
 				autofocus
 			/>
-			<Button title="Save" onPress={onSaveIdentity} fluid={true} />
+			<Button title="Save" onPress={onSaveWallet} fluid={true} />
 		</View>
 	);
 }

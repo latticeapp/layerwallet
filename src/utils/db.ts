@@ -17,7 +17,7 @@
 
 import SecureStorage from 'react-native-secure-storage';
 
-import { deserializeIdentities, serializeIdentities } from './identitiesUtils';
+import { deserializeWallets, serializeWallets } from './walletsUtils';
 
 import { mergeNetworks, serializeNetworks } from 'utils/networksUtils';
 import { SUBSTRATE_NETWORK_LIST } from 'constants/networkSpecs';
@@ -31,34 +31,35 @@ function handleError(e: Error, label: string): any[] {
 
 /*
  * ========================================
- *	Identities Store
+ *	Wallets Store
  * ========================================
  */
-const identitiesStore = {
+// TODO: rename storage keys
+const walletsStore = {
 	keychainService: 'parity_signer_identities',
 	sharedPreferencesName: 'parity_signer_identities'
 };
 const currentIdentityStorageLabel = 'identities_v4';
 
-export async function loadIdentities(version = 4): Promise<Wallet[]> {
+export async function loadWallets(version = 4): Promise<Wallet[]> {
 	const identityStorageLabel = `identities_v${version}`;
 	try {
 		const wallets = await SecureStorage.getItem(
 			identityStorageLabel,
-			identitiesStore
+			walletsStore
 		);
 		if (!wallets) return [];
-		return deserializeIdentities(wallets);
+		return deserializeWallets(wallets);
 	} catch (e) {
 		return handleError(e, 'wallet');
 	}
 }
 
-export const saveIdentities = (wallets: Wallet[]): void => {
+export const saveWallets = (wallets: Wallet[]): void => {
 	SecureStorage.setItem(
 		currentIdentityStorageLabel,
-		serializeIdentities(wallets),
-		identitiesStore
+		serializeWallets(wallets),
+		walletsStore
 	);
 };
 

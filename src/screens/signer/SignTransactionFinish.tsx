@@ -56,7 +56,7 @@ function SignTransactionFinishView({
 	scannerStore
 }: Props): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
-	const wallet = accountsStore.getIdentityByAccountId(sender.accountId)!;
+	const wallet = accountsStore.getWalletByAccountId(sender.accountId)!;
 	const { signedData } = scannerStore.state;
 
 	return (

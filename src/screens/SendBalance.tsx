@@ -23,9 +23,9 @@ import Clipboard from '@react-native-community/clipboard';
 import { components } from 'styles';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsStoreStateWithWallet } from 'types/walletTypes';
-import { NavigationAccountIdentityProps } from 'types/props';
-import { withCurrentIdentity } from 'utils/HOC';
-import { getNetworkKey } from 'utils/identitiesUtils';
+import { NavigationAccountWalletProps } from 'types/props';
+import { withCurrentWallet } from 'utils/HOC';
+import { getNetworkKey } from 'utils/walletsUtils';
 import Button from 'components/Button';
 import TextInput from 'components/TextInput';
 
@@ -38,7 +38,7 @@ interface Props {
 function SendBalance({
 	accountsStore,
 	route
-}: NavigationAccountIdentityProps<'SendBalance'>): React.ReactElement {
+}: NavigationAccountWalletProps<'SendBalance'>): React.ReactElement {
 	const path = route.params.path;
 	const networksContextState = useContext(NetworksContext);
 	const networkKey = getNetworkKey(
@@ -166,4 +166,4 @@ function SendBalance({
 	);
 }
 
-export default withCurrentIdentity(SendBalance);
+export default withCurrentWallet(SendBalance);

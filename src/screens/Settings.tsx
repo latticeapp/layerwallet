@@ -31,7 +31,7 @@ import { AccountsContext } from 'stores/AccountsContext';
 import { Wallet } from 'types/walletTypes';
 import { NavigationProps } from 'types/props';
 import { RootStackParamList } from 'types/routes';
-import { getIdentitySeed, getIdentityName } from 'utils/identitiesUtils';
+import { getWalletSeed, getWalletName } from 'utils/walletsUtils';
 
 function ButtonWithArrow(props: {
 	onPress: () => void;
@@ -48,12 +48,10 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 	if (wallets.length === 0) return <Onboarding />;
 	if (!currentWallet) return <View />;
 
-	const renderIdentity = (wallet: Wallet): React.ReactElement => {
-		const title = getIdentityName(wallet, wallets);
-		const showRecoveryPhrase = async (
-			targetIdentity: Wallet
-		): Promise<void> => {
-			const seedPhrase = await getIdentitySeed(targetIdentity);
+	const renderWallet = (wallet: Wallet): React.ReactElement => {
+		const title = getWalletName(wallet, wallets);
+		const showRecoveryPhrase = async (targetWallet: Wallet): Promise<void> => {
+			const seedPhrase = await getWalletSeed(targetWallet);
 			navigation.navigate('ShowRecoveryPhrase', { seedPhrase });
 		};
 
@@ -72,7 +70,7 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 						<ButtonWithArrow
 							title="Select this wallet"
 							onPress={(): void => {
-								accountsStore.selectIdentity(wallet);
+								accountsStore.selectWallet(wallet);
 								showMessage('Wallet switched.');
 							}}
 						/>
@@ -114,7 +112,7 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 	return (
 		<>
 			<View style={components.pageWideFullBleed}>
-				{wallets.map(renderIdentity)}
+				{wallets.map(renderWallet)}
 				<View style={{ paddingHorizontal: 32, paddingVertical: 16 }}>
 					<Button
 						title="Add wallet"

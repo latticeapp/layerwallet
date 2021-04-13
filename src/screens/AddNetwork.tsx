@@ -30,9 +30,9 @@ import {
 	isSubstrateNetworkParams,
 	NetworkParams
 } from 'types/networkTypes';
-import { NavigationAccountIdentityProps } from 'types/props';
-import { withCurrentIdentity } from 'utils/HOC';
-import { getExistedNetworkKeys } from 'utils/identitiesUtils';
+import { NavigationAccountWalletProps } from 'types/props';
+import { withCurrentWallet } from 'utils/HOC';
+import { getExistedNetworkKeys } from 'utils/walletsUtils';
 import { resetNavigationTo } from 'utils/navigationHelpers';
 import { useSeedRef } from 'utils/seedRefHooks';
 
@@ -40,7 +40,7 @@ function AddNetwork({
 	accountsStore,
 	navigation,
 	route
-}: NavigationAccountIdentityProps<'AddNetwork'>): React.ReactElement {
+}: NavigationAccountWalletProps<'AddNetwork'>): React.ReactElement {
 	const isNew = route.params?.isNew ?? false;
 	const { currentWallet } = accountsStore.state;
 	const networkContextState = useContext(NetworksContext);
@@ -51,13 +51,8 @@ function AddNetwork({
 		networkKey: string,
 		networkParams: NetworkParams
 	): Promise<void> => {
-		// remove existing network
-		if (isSubstrateNetworkParams(networkParams)) {
-			const { pathId } = networkParams;
-			accountsStore.deleteSubstratePath(`//${pathId}`, networkContextState);
-		} else {
-			accountsStore.deleteEthereumAddress(networkKey);
-		}
+		// remove existing network (TODO: remove)
+		accountsStore.deleteCurrentAddress();
 
 		// add new network
 		if (isSubstrateNetworkParams(networkParams)) {
@@ -152,4 +147,4 @@ function AddNetwork({
 	);
 }
 
-export default withCurrentIdentity(AddNetwork);
+export default withCurrentWallet(AddNetwork);
