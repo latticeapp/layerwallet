@@ -68,7 +68,6 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	);
 
 	const networkKey = currentWallet?.account?.networkKey;
-	console.log(`network key: ${networkKey}`);
 	const networkParams = networkKey ? allNetworks.get(networkKey)! : undefined;
 
 	// initialize the API using the first network the user has, if they have any
@@ -82,7 +81,6 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 		if (!networkKey || !networkParams) {
 			// if removing network, ensure we disconnect manually
 			if (state.isApiInitialized) {
-				console.log('calling disconnect in wallet');
 				disconnect(state.api);
 			}
 			return;
@@ -130,7 +128,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 				};
 			}
 		}
-	}, [state, currentWallet, networkKey, networkParams]);
+	}, [state.isApiReady, currentWallet, networkKey]);
 
 	if (!loaded) return <View />;
 	if (wallets.length === 0) return <Onboarding />;

@@ -100,7 +100,6 @@ export function useApiContext(): ApiContextState {
 		metadata?: Record<string, string>
 	): void {
 		if (state.apiNetworkKey === networkKey) return;
-		console.log('calling disconnect in init');
 		disconnect();
 
 		console.log(`CREATING API: ${url}`);
