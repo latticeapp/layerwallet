@@ -83,6 +83,7 @@ function CreateWallet2({
 				title={'Go back'}
 				onPress={(): void => navigation.goBack()}
 				fluid={true}
+				secondary={true}
 			/>
 		</View>
 	);

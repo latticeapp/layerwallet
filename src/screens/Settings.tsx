@@ -82,8 +82,8 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 								onPress={(): void =>
 									navigation.navigate('RenameWallet', {
 										accountsStore,
-										wallet,
-										navigation
+										navigation,
+										wallet
 									})
 								}
 							/>
@@ -92,8 +92,8 @@ function Settings({}: NavigationProps<'Settings'>): React.ReactElement {
 								onPress={(): void =>
 									navigation.navigate('DeleteWallet', {
 										accountsStore,
-										wallet,
-										navigation
+										navigation,
+										wallet
 									})
 								}
 							/>

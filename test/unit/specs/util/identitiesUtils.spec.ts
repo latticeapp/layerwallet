@@ -16,11 +16,6 @@
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
 import {
-	GetNetwork,
-	GetSubstrateNetwork,
-	NetworksContextState
-} from 'stores/NetworkContext';
-import {
 	deserializeIdentities,
 	getExistedNetworkKeys,
 	getNetworkKeyByPath,
@@ -30,6 +25,12 @@ import {
 	isSubstrateHardDerivedPath,
 	serializeIdentities
 } from 'utils/identitiesUtils';
+
+import {
+	GetNetwork,
+	GetSubstrateNetwork,
+	NetworksContextState
+} from 'stores/NetworkContext';
 import {
 	EthereumNetworkKeys,
 	NETWORK_LIST,

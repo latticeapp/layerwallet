@@ -23,6 +23,7 @@ export const colors = {
 		accentDark: '#4d6fe3',
 		accentLight: '#eff2fe',
 		accentMedium: '#E1E5F8',
+		accentOffDark: '#93A8EF',
 		app: '#fff',
 		button: '#f7f9ff',
 		dark: '#000000',
@@ -72,7 +73,7 @@ export const components = {
 		paddingHorizontal: 28
 	},
 	buttonDisabled: {
-		backgroundColor: colors.background.accentLight
+		backgroundColor: colors.background.accentOffDark
 	},
 	buttonFluid: {
 		textAlign: 'center',

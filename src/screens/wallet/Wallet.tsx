@@ -18,7 +18,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { View, Text, BackHandler } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { VoidFn } from '@polkadot/api/types';
 import BN from 'bn.js';
 
 import { NetworkCard } from './NetworkCard';

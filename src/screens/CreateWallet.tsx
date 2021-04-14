@@ -54,7 +54,7 @@ function CreateWallet({
 				autofocus={true}
 			/>
 			<Button
-				title="Create wallet"
+				title="Create a new wallet"
 				onPress={(): void => navigation.navigate('CreateWallet2')}
 				fluid={true}
 			/>

@@ -44,8 +44,7 @@ function CreateWallet3({
 				route.params.seedPhrase,
 				createSeedRefWithNewSeed
 			);
-			resetNavigationTo(navigation, 'Wallet');
-			navigation.navigate('AddNetwork');
+			resetNavigationTo(navigation, 'AddNetwork');
 		} catch (e) {
 			showMessage(e.message);
 		}
@@ -58,7 +57,9 @@ function CreateWallet3({
 
 	return (
 		<View style={components.page}>
-			<Text style={components.textBlock}>Retype the key phrase.</Text>
+			<Text style={components.textBlock}>
+				Retype the key phrase to confirm:
+			</Text>
 			<AccountSeedTextInput
 				onChangeText={onSeedTextInput}
 				onSubmitEditing={createWallet}
@@ -75,6 +76,7 @@ function CreateWallet3({
 				title={'Go back'}
 				onPress={(): void => navigation.goBack()}
 				fluid={true}
+				secondary={true}
 			/>
 		</View>
 	);

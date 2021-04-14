@@ -59,10 +59,7 @@ function CreateWalletImport({
 					createSeedRefWithNewSeed
 				);
 			} else {
-				await accountsStore.saveNewWallet(
-					seedPhrase,
-					createSeedRefWithNewSeed
-				);
+				await accountsStore.saveNewWallet(seedPhrase, createSeedRefWithNewSeed);
 			}
 			setSeedPhrase('');
 			resetNavigationTo(navigation, 'Wallet', { isNew: true });
