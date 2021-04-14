@@ -63,6 +63,7 @@ export function useApiContext(): ApiContextState {
 			console.log('DISCONNECTING API');
 			const api = state.api;
 			setState({
+				api: null,
 				apiError: null,
 				apiNetworkKey: '',
 				isApiConnected: false,
