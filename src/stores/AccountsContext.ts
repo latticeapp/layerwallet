@@ -60,8 +60,7 @@ export type AccountsContextState = {
 		networkKey: string,
 		newPath: string,
 		createSubstrateAddress: TrySubstrateAddress,
-		networkParams: SubstrateNetworkParams,
-		name: string
+		networkParams: SubstrateNetworkParams
 	) => Promise<void>;
 	deleteWallet: (wallet: Wallet) => void;
 	clearAddress: () => void;
@@ -98,24 +97,20 @@ export function useAccountContext(): AccountsContextState {
 		loadInitialContext();
 	}, []);
 
-	function _updateWalletswithCurrentWallet(updatedCurrentWallet: Wallet): void {
-		setState({
-			currentWallet: updatedCurrentWallet
-		});
-		const newWallets = deepCopyWallets(state.wallets);
-		if (state.currentWallet === null) return;
-		const walletIndex = newWallets.findIndex(
-			(wallet: Wallet) =>
-				wallet.encryptedSeed === state.currentWallet!.encryptedSeed
-		);
-		newWallets.splice(walletIndex, 1, updatedCurrentWallet);
-		setState({ wallets: newWallets });
-		saveWallets(newWallets);
-	}
-
 	function _updateCurrentWallet(updatedWallet: Wallet): void {
 		try {
-			_updateWalletswithCurrentWallet(updatedWallet);
+			setState({
+				currentWallet: updatedWallet
+			});
+			const newWallets = deepCopyWallets(state.wallets);
+			if (state.currentWallet === null) return;
+			const walletIndex = newWallets.findIndex(
+				(wallet: Wallet) =>
+					wallet.encryptedSeed === state.currentWallet!.encryptedSeed
+			);
+			newWallets.splice(walletIndex, 1, updatedWallet);
+			setState({ wallets: newWallets });
+			saveWallets(newWallets);
 		} catch (error) {
 			throw new Error(walletUpdateError);
 		}
@@ -132,22 +127,32 @@ export function useAccountContext(): AccountsContextState {
 		networkKey: string
 	): Promise<void> {
 		const networkParams = ETHEREUM_NETWORK_LIST[networkKey];
-		const ethereumAddress = await brainWalletAddressWithRef(
-			createBrainWalletAddress
-		);
-		if (ethereumAddress.address === '') throw new Error(addressGenerateError);
 		const { ethereumChainId } = networkParams;
 		if (state.currentWallet === null) throw new Error(emptyWalletError);
 		const updatedCurrentWallet = deepCopyWallet(state.currentWallet);
 		if (updatedCurrentWallet.account?.path === ethereumChainId)
 			throw new Error(accountExistedError);
-		updatedCurrentWallet.account = {
-			address: ethereumAddress.address,
-			createdAt: new Date().getTime(),
-			networkKey,
-			path: ethereumChainId,
-			updatedAt: new Date().getTime()
-		};
+		if (updatedCurrentWallet.allAccounts.has(networkKey)) {
+			updatedCurrentWallet.account = updatedCurrentWallet.allAccounts.get(
+				networkKey
+			);
+		} else {
+			const ethereumAddress = await brainWalletAddressWithRef(
+				createBrainWalletAddress
+			);
+			if (ethereumAddress.address === '') throw new Error(addressGenerateError);
+			updatedCurrentWallet.account = {
+				address: ethereumAddress.address,
+				createdAt: new Date().getTime(),
+				networkKey,
+				path: ethereumChainId,
+				updatedAt: new Date().getTime()
+			};
+			updatedCurrentWallet.allAccounts.set(
+				networkKey,
+				updatedCurrentWallet.account
+			);
+		}
 		_updateCurrentWallet(updatedCurrentWallet);
 	}
 
@@ -206,7 +211,6 @@ export function useAccountContext(): AccountsContextState {
 		if (networkKey !== UnknownNetworkKeys.UNKNOWN) {
 			derivedAccount = _getAccountFromWallet(accountId, networkContext);
 		}
-		//TODO backward support for user who has create account in known network for an unknown network. removed after offline network update
 		derivedAccount =
 			derivedAccount || _getAccountFromWallet(address, networkContext);
 
@@ -234,35 +238,6 @@ export function useAccountContext(): AccountsContextState {
 		return state.wallets.find(
 			wallet => wallet?.account?.address === searchAddress
 		);
-	}
-
-	async function _updateWalletPath(
-		networkKey: string,
-		newPath: string,
-		createSubstrateAddress: TrySubstrateAddress,
-		updatedWallet: Wallet,
-		name: string,
-		networkParams: SubstrateNetworkParams
-	): Promise<Wallet> {
-		const { prefix, pathId } = networkParams;
-		let address = '';
-		try {
-			address = await createSubstrateAddress('', prefix);
-		} catch (e) {
-			throw new Error(addressGenerateError);
-		}
-		if (address === '') throw new Error(addressGenerateError);
-		const pathMeta = {
-			address,
-			createdAt: new Date().getTime(),
-			name,
-			networkKey,
-			networkPathId: pathId,
-			path: newPath,
-			updatedAt: new Date().getTime()
-		};
-		updatedWallet.account = pathMeta;
-		return updatedWallet;
 	}
 
 	async function saveNewWallet(
@@ -306,19 +281,32 @@ export function useAccountContext(): AccountsContextState {
 		networkKey: string,
 		newPath: string,
 		createSubstrateAddress: TrySubstrateAddress,
-		networkParams: SubstrateNetworkParams,
-		name: string
+		networkParams: SubstrateNetworkParams
 	): Promise<void> {
-		const updatedCurrentWallet = deepCopyWallet(state.currentWallet!);
-		await _updateWalletPath(
-			networkKey,
-			newPath,
-			createSubstrateAddress,
-			updatedCurrentWallet,
-			name,
-			networkParams
-		);
-		_updateCurrentWallet(updatedCurrentWallet);
+		const updatedWallet = deepCopyWallet(state.currentWallet!);
+		if (updatedWallet.allAccounts.has(networkKey)) {
+			updatedWallet.account = updatedWallet.allAccounts.get(networkKey);
+		} else {
+			const { prefix, pathId } = networkParams;
+			let address = '';
+			try {
+				address = await createSubstrateAddress('', prefix);
+			} catch (e) {
+				throw new Error(addressGenerateError);
+			}
+			if (address === '') throw new Error(addressGenerateError);
+			const newAccount = {
+				address,
+				createdAt: new Date().getTime(),
+				networkKey,
+				networkPathId: pathId,
+				path: newPath,
+				updatedAt: new Date().getTime()
+			};
+			updatedWallet.account = newAccount;
+			updatedWallet.allAccounts.set(networkKey, newAccount);
+		}
+		_updateCurrentWallet(updatedWallet);
 	}
 
 	function clearAddress(): void {

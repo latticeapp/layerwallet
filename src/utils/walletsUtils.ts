@@ -98,6 +98,7 @@ export const getAddressKeyByPath = (
 
 export function emptyWallet(): Wallet {
 	return {
+		allAccounts: new Map(),
 		encryptedSeed: '',
 		name: ''
 	};

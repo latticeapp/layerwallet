@@ -20,7 +20,7 @@ export type ApiContextState = {
 		url: string,
 		registry?: TypeRegistry,
 		metadata?: Record<string, string>
-	) => Promise<ApiPromise | null>;
+	) => void;
 	disconnect: (api: ApiPromise | null) => void;
 };
 
@@ -47,11 +47,13 @@ export function useApiContext(): ApiContextState {
 	const [state, setState] = useReducer(reducer, initialState);
 
 	// TODO: load an initial context
-	const onConnected = (): void => setState({ isApiConnected: true, apiError: null });
+	const onConnected = (): void =>
+		setState({ apiError: null, isApiConnected: true });
 	const onDisconnected = (): void => setState({ isApiConnected: false });
-	const onError = (error: Error): void => setState({ apiError: error.message });
+	const onError = (error: Error): void =>
+		setState({ apiError: error.message, isApiReady: false });
 	const onReady = (): void => {
-		setState({ isApiReady: true, apiError: null });
+		setState({ apiError: null, isApiReady: true });
 		console.log('API READY');
 	};
 
@@ -62,6 +64,7 @@ export function useApiContext(): ApiContextState {
 			const api = state.api;
 			setState({
 				apiError: null,
+				apiNetworkKey: '',
 				isApiConnected: false,
 				isApiInitialized: false,
 				isApiReady: false
@@ -86,7 +89,7 @@ export function useApiContext(): ApiContextState {
 		api.on('disconnected', onDisconnected);
 		api.on('error', onError);
 		api.on('ready', onReady);
-		setState({ isApiInitialized: true, apiError: null });
+		setState({ apiError: null, isApiInitialized: true });
 		await api.isReady;
 	}
 
@@ -95,13 +98,14 @@ export function useApiContext(): ApiContextState {
 		url: string,
 		registry?: TypeRegistry,
 		metadata?: Record<string, string>
-	): Promise<ApiPromise | null> {
-		if (state.apiNetworkKey === networkKey) return Promise.resolve(null);
+	): void {
+		if (state.apiNetworkKey === networkKey) return;
+		console.log('calling disconnect in init');
 		disconnect();
 
 		console.log(`CREATING API: ${url}`);
 		setState({ apiNetworkKey: networkKey });
-		const provider = new WsProvider(url, 3000); // pass autoConnectMs=false to disable automatic reconnect
+		const provider = new WsProvider(url, false); // disable automatic reconnect
 		provider
 			.connect()
 			.then(_result => {
@@ -121,8 +125,7 @@ export function useApiContext(): ApiContextState {
 		api.on('error', onError);
 		api.on('ready', onReady);
 
-		setState({ api, isApiInitialized: true, apiError: null });
-		return api.isReady;
+		setState({ api, apiError: null, isApiInitialized: true });
 	}
 
 	// manage entering/leaving the app

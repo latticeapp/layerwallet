@@ -60,13 +60,14 @@ function AddNetwork({
 			const { pathId } = networkParams;
 			const fullPath = `//${pathId}`;
 			try {
+				console.log('...deriving path...');
 				await accountsStore.deriveNewPath(
 					networkKey,
 					fullPath,
 					seedRefHooks.substrateAddress,
-					getSubstrateNetwork(networkKey),
-					`${networkParams.title} root`
+					getSubstrateNetwork(networkKey)
 				);
+				console.log('path derived!');
 			} catch (error) {
 				showMessage(
 					'Could not derive a valid account from the seed: ' + error.message

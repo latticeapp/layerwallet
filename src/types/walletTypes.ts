@@ -35,13 +35,15 @@ export interface FoundAccount extends Account {
 
 export type Wallet = {
 	account?: Account;
+	allAccounts: Map<string, Account>;
 	encryptedSeed: string;
 	name: string;
 };
 
 export type SerializedWallet = {
-	encryptedSeed: string;
 	account: Account;
+	allAccounts: Array<[string, Account]>;
+	encryptedSeed: string;
 	name: string;
 };
 

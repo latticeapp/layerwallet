@@ -18,6 +18,7 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { View, Text, BackHandler } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { VoidFn } from '@polkadot/api/types';
 import BN from 'bn.js';
 
 import { NetworkCard } from './NetworkCard';
@@ -67,26 +68,35 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	);
 
 	const networkKey = currentWallet?.account?.networkKey;
+	console.log(`network key: ${networkKey}`);
 	const networkParams = networkKey ? allNetworks.get(networkKey)! : undefined;
 
 	// initialize the API using the first network the user has, if they have any
-	const { initApi, state } = useContext(ApiContext);
+	const { initApi, state, disconnect } = useContext(ApiContext);
 	const { networks } = networkContextState;
 	const { getTypeRegistry } = useContext(RegistriesContext);
 
 	// initialize API (TODO: move out of wallet!)
-	useEffect((): void => {
-		// TODO: make this refresh less often!
-		if (!networkKey || !networkParams) return;
+	useEffect(() => {
+		console.log('init hook called!');
+		if (!networkKey || !networkParams) {
+			// if removing network, ensure we disconnect manually
+			if (state.isApiInitialized) {
+				console.log('calling disconnect in wallet');
+				disconnect(state.api);
+			}
+			return;
+		}
 		if (!isSubstrateNetworkParams(networkParams) || !networkParams.url) return;
 		const registryData = getTypeRegistry(networks, networkKey);
 		if (!registryData) return;
 		const [registry, metadata] = registryData;
 		initApi(networkKey, networkParams.url, registry, metadata);
-	}, [networkKey, networkParams, getTypeRegistry, initApi, networks]);
+	}, [networkKey]);
 
 	// initialize balances
-	useEffect((): void => {
+	useEffect((): void | (() => void) => {
+		console.log('balances hook called!');
 		if (state.isApiReady) {
 			if (!networkKey || !networkParams) return;
 			if (!isSubstrateNetworkParams(networkParams) || !networkParams.url)
@@ -97,6 +107,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 			const decimals = networkParams.decimals;
 			if (state.api?.derive?.balances) {
 				console.log(`FETCHING BALANCES: ${address}`);
+				let isMounted = true;
 				state.api.derive.balances
 					.all(address)
 					.then(fetchedBalance => {
@@ -104,14 +115,19 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 						const div = fetchedBalance.availableBalance.div(base);
 						const mod = fetchedBalance.availableBalance.mod(base);
 						const nDisplayDecimals = 3;
-						setBalance({
-							freeBalance:
-								div + '.' + mod.toString(10).slice(0, nDisplayDecimals)
-						});
+						if (isMounted) {
+							setBalance({
+								freeBalance:
+									div + '.' + mod.toString(10).slice(0, nDisplayDecimals)
+							});
+						}
 					})
 					.catch(error => {
 						console.log('FETCHING BALANCE ERROR', error);
 					});
+				return (): void => {
+					isMounted = false;
+				};
 			}
 		}
 	}, [state, currentWallet, networkKey, networkParams]);
@@ -172,8 +188,8 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 				</View>
 				<View style={{ padding: 20 }}>
 					<Text>Error: {state.apiError || '-'}</Text>
-					<Text>Connected?: {state.isApiConnected ? 'true' : 'false'}</Text>
 					<Text>Initialized?: {state.isApiInitialized ? 'true' : 'false'}</Text>
+					<Text>Connected?: {state.isApiConnected ? 'true' : 'false'}</Text>
 					<Text>Ready?: {state.isApiReady ? 'true' : 'false'}</Text>
 				</View>
 			</View>
