@@ -87,13 +87,13 @@ const substrateNetworkBase: Record<string, SubstrateNetworkDefaultConstant> = {
 		color: '#000',
 		decimals: 18,
 		genesisHash: SubstrateNetworkKeys.BERESHEET,
-		isTestnet: false,
+		isTestnet: true,
 		logo: require('res/img/logos/Edgeware.png'),
 		order: 1,
 		pathId: 'edgeware',
 		prefix: 7,
-		title: 'Edgeware Beresheet',
-		unit: 'testEDG',
+		title: 'Beresheet',
+		unit: 'tEDG',
 		url: 'wss://beresheet1.edgewa.re'
 	},
 	[SubstrateNetworkKeys.EDGEWARE]: {
