@@ -22,7 +22,7 @@ import BN from 'bn.js';
 
 import { NetworkCard } from './NetworkCard';
 
-import { components, fontStyles } from 'styles/index';
+import { components, colors, fonts, fontStyles } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
 import testIDs from 'e2e/testIDs';
@@ -46,6 +46,43 @@ interface State {
 const EMPTY_STATE: State = {
 	freeBalance: 'Loading...'
 };
+
+function WalletConnectionBar({ state }): React.ReactElement {
+	const text = state.apiError
+		? `ERROR: ${state.apiError}`
+		: !state.isApiInitialized
+		? 'Initializing API...'
+		: !state.isApiConnected
+		? 'Connecting to API...'
+		: !state.isApiReady
+		? 'Loading wallet information...'
+		: null;
+	if (text === null) return null;
+
+	return (
+		<View
+			style={{
+				backgroundColor: colors.background.accentAlternate,
+				paddingBottom: 13,
+				paddingHorizontal: 24,
+				paddingTop: 14,
+				position: 'relative',
+				top: -24,
+				width: '100%'
+			}}
+		>
+			<Text
+				style={{
+					color: colors.text.dark,
+					fontFamily: fonts.regular,
+					fontSize: 16
+				}}
+			>
+				{text}
+			</Text>
+		</View>
+	);
+}
 
 function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
@@ -175,6 +212,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	return (
 		<>
 			<View style={components.pageWide}>
+				<WalletConnectionBar state={state} />
 				{networkKey && networkParams && renderNetwork()}
 				<View style={{ marginBottom: 12, paddingHorizontal: 15 }}>
 					<Button
@@ -182,12 +220,6 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 						onPress={(): void => navigation.navigate('AddNetwork')}
 						fluid={true}
 					/>
-				</View>
-				<View style={{ padding: 20 }}>
-					<Text>Error: {state.apiError || '-'}</Text>
-					<Text>Initialized?: {state.isApiInitialized ? 'true' : 'false'}</Text>
-					<Text>Connected?: {state.isApiConnected ? 'true' : 'false'}</Text>
-					<Text>Ready?: {state.isApiReady ? 'true' : 'false'}</Text>
 				</View>
 			</View>
 			<NavigationTab />

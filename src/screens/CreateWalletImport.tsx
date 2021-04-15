@@ -77,9 +77,7 @@ function CreateWalletImport({
 
 	return (
 		<View style={components.page}>
-			<Text style={components.textBlock}>
-				Enter a key phrase to import:
-			</Text>
+			<Text style={components.textBlock}>Enter a key phrase to import:</Text>
 			<AccountSeedTextInput
 				onChangeText={onSeedTextInput}
 				onSubmitEditing={onRecoverConfirm}
