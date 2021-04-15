@@ -35,12 +35,9 @@ import {
 	SerializedWallet
 } from 'types/walletTypes';
 import {
+	beresheetMetadata,
 	edgewareMetadata,
-	kulupuMetadata,
-	kusamaMetadata,
-	polkadotMetaData,
-	rococoMetadata,
-	westendMetadata
+	kusamaMetadata
 } from 'constants/networkMetadata';
 import { PIN } from 'constants/pin';
 
@@ -245,16 +242,10 @@ export const getMetadata = (networkKey: string): [string, number] | null => {
 	switch (networkKey) {
 		case SubstrateNetworkKeys.KUSAMA:
 			return [kusamaMetadata, 2029];
-		case SubstrateNetworkKeys.WESTEND:
-			return [westendMetadata, 49];
 		case SubstrateNetworkKeys.EDGEWARE:
 			return [edgewareMetadata, 45];
-		case SubstrateNetworkKeys.KULUPU:
-			return [kulupuMetadata, 17];
-		case SubstrateNetworkKeys.POLKADOT:
-			return [polkadotMetaData, 29];
-		case SubstrateNetworkKeys.ROCOCO:
-			return [rococoMetadata, 229];
+		case SubstrateNetworkKeys.BERESHEET:
+			return [beresheetMetadata, 45];
 		default:
 			return null;
 	}

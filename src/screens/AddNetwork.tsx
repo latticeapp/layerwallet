@@ -61,7 +61,7 @@ function AddNetwork({
 			const fullPath = `//${pathId}`;
 			try {
 				console.log('...deriving path...');
-				await accountsStore.deriveNewPath(
+				await accountsStore.deriveNewAccount(
 					networkKey,
 					fullPath,
 					seedRefHooks.substrateAddress,

@@ -31,16 +31,9 @@ type NetworkTypesMap = {
 	[key: string]: RegisteredTypes;
 };
 const networkTypesMap: NetworkTypesMap = {
+	beresheet: { ...spec },
 	edgeware: { ...spec },
-	kulupu: {
-		types: {
-			CampaignIdentifier: '[u8; 4]'
-		}
-	},
-	kusama: {},
-	polkadot: {},
-	rococo: {},
-	westend: {}
+	kusama: {}
 };
 
 export const getOverrideTypes = (

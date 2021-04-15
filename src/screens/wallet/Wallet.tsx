@@ -36,7 +36,7 @@ import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Button from 'components/Button';
 import Onboarding from 'components/Onboarding';
 import NavigationTab from 'components/NavigationTab';
-import { ApiContext } from 'stores/ApiContext';
+import { ApiContext, ApiStoreState } from 'stores/ApiContext';
 import { RegistriesContext } from 'stores/RegistriesContext';
 
 interface State {
@@ -47,7 +47,11 @@ const EMPTY_STATE: State = {
 	freeBalance: 'Loading...'
 };
 
-function WalletConnectionBar({ state }): React.ReactElement {
+function WalletConnectionBar({
+	state
+}: {
+	state: ApiStoreState;
+}): React.ReactElement {
 	const text = state.apiError
 		? `ERROR: ${state.apiError}`
 		: !state.isApiInitialized

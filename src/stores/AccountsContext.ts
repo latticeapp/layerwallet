@@ -56,7 +56,7 @@ export type AccountsContextState = {
 	selectWallet: (wallet: Wallet) => void;
 	updateNewWallet: (walletUpdate: Partial<Wallet>) => void;
 	updateWalletName: (name: string) => void;
-	deriveNewPath: (
+	deriveNewAccount: (
 		networkKey: string,
 		newPath: string,
 		createSubstrateAddress: TrySubstrateAddress,
@@ -277,7 +277,7 @@ export function useAccountContext(): AccountsContextState {
 		});
 	}
 
-	async function deriveNewPath(
+	async function deriveNewAccount(
 		networkKey: string,
 		newPath: string,
 		createSubstrateAddress: TrySubstrateAddress,
@@ -334,7 +334,7 @@ export function useAccountContext(): AccountsContextState {
 		clearWallet,
 		deleteWallet,
 		deriveEthereumAccount,
-		deriveNewPath,
+		deriveNewAccount,
 		getAccountByAddress,
 		getById,
 		getWalletByAccountId,
