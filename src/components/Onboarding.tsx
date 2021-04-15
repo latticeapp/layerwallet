@@ -28,35 +28,18 @@ import { RootStackParamList } from 'types/routes';
 export default function Onboarding({}: {}): React.ReactElement {
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
 
-	function TextButton({
-		text,
-		isRecover
-	}: {
-		text: string;
-		isRecover: boolean;
-	}): React.ReactElement {
-		return (
-			<Text
-				style={[fontStyles.quote, { textDecorationLine: 'underline' }]}
-				testID={
-					isRecover ? testIDs.Wallet.recoverButton : testIDs.Wallet.createButton
-				}
-				onPress={(): void => navigation.navigate('CreateWallet', { isRecover })}
-			>
-				{text}
-			</Text>
-		);
-	}
-
 	return (
 		<SafeAreaScrollViewContainer
 			testID={testIDs.Wallet.noAccountScreen}
 			contentContainerStyle={styles.scrollContent}
 		>
 			<View style={styles.onboardingWrapper}>
-				<TextButton text="Create" isRecover={false} />
-				<Text style={fontStyles.quote}> or </Text>
-				<TextButton text="import" isRecover={true} />
+				<Text
+					style={[fontStyles.quote, { textDecorationLine: 'underline' }]}
+					onPress={(): void => navigation.navigate('CreateWallet')}
+				>
+					Create or import
+				</Text>
 				<Text style={fontStyles.quote}>a wallet to get started.</Text>
 			</View>
 		</SafeAreaScrollViewContainer>

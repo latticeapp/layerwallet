@@ -51,11 +51,11 @@ function WalletConnectionBar({ state }): React.ReactElement {
 	const text = state.apiError
 		? `ERROR: ${state.apiError}`
 		: !state.isApiInitialized
-		? 'Initializing API...'
+		? 'Waiting for API connection...'
 		: !state.isApiConnected
 		? 'Connecting to API...'
 		: !state.isApiReady
-		? 'Loading wallet information...'
+		? 'Connecting to API...'
 		: null;
 	if (text === null) return null;
 
@@ -212,7 +212,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	return (
 		<>
 			<View style={components.pageWide}>
-				<WalletConnectionBar state={state} />
+				{currentWallet?.account && <WalletConnectionBar state={state} />}
 				{networkKey && networkParams && renderNetwork()}
 				<View style={{ marginBottom: 12, paddingHorizontal: 15 }}>
 					<Button

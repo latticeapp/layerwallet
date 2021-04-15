@@ -40,27 +40,21 @@ export const UnknownNetworkKeys: Record<string, string> = Object.freeze({
 });
 
 // ethereumChainId is used as Network key for Ethereum networks
-/* eslint-disable sort-keys */
 export const EthereumNetworkKeys: Record<string, string> = Object.freeze({
-	FRONTIER: '1',
-	ROPSTEN: '3',
-	RINKEBY: '4',
-	GOERLI: '5'
+	// FRONTIER: '1',
+	// ROPSTEN: '3',
+	// GOERLI: '5'
 });
-
-/* eslint-enable sort-keys */
 
 // genesisHash is used as Network key for Substrate networks
 export const SubstrateNetworkKeys: Record<string, string> = Object.freeze({
 	// genesis hashes can be found at e.g. https://edgeware.subscan.io/block/0
+	// or https://polkadot.js.org/apps/#/explorer/query/0
+	BERESHEET:
+		'0x67640d4c0087ed6b8d3d7654b7df557a0d14e470ce7b0ec0c0ba0e4d0ce2f5e8',
 	EDGEWARE:
 		'0x742a2ca70c2fda6cee4f8df98d64c4c670a052d9568058982dad9d5a7a135c5b',
-	KULUPU: '0xf7a99d3cb92853d00d5275c971c132c074636256583fee53b3bbe60d7b8769ba',
-	KUSAMA: '0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe',
-	POLKADOT:
-		'0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3',
-	ROCOCO: '0x78ae7dc7e64637e01fa6a6b6e4fa252c486f62af7aa71c471ad17f015bd375ce',
-	WESTEND: '0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e'
+	KUSAMA: '0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe'
 });
 
 export const unknownNetworkParams: UnknownNetworkParams = {
@@ -89,31 +83,31 @@ const unknownNetworkBase: Record<string, UnknownNetworkParams> = {
 };
 
 const substrateNetworkBase: Record<string, SubstrateNetworkDefaultConstant> = {
+	[SubstrateNetworkKeys.BERESHEET]: {
+		color: '#000',
+		decimals: 18,
+		genesisHash: SubstrateNetworkKeys.BERESHEET,
+		isTestnet: false,
+		logo: require('res/img/logos/Edgeware.png'),
+		order: 1,
+		pathId: 'edgeware',
+		prefix: 7,
+		title: 'Edgeware Beresheet',
+		unit: 'testEDG',
+		url: 'wss://beresheet1.edgewa.re'
+	},
 	[SubstrateNetworkKeys.EDGEWARE]: {
-		color: '#0B95E0',
+		color: '#000',
 		decimals: 18,
 		genesisHash: SubstrateNetworkKeys.EDGEWARE,
 		isTestnet: false,
 		logo: require('res/img/logos/Edgeware.png'),
-		order: 6,
+		order: 0,
 		pathId: 'edgeware',
 		prefix: 7,
 		title: 'Edgeware',
 		unit: 'EDG',
 		url: 'wss://mainnet1.edgewa.re'
-	},
-	[SubstrateNetworkKeys.KULUPU]: {
-		color: '#003366',
-		decimals: 18,
-		genesisHash: SubstrateNetworkKeys.KULUPU,
-		isTestnet: false,
-		logo: require('res/img/logos/Kulupu.png'),
-		order: 5,
-		pathId: 'kulupu',
-		prefix: 16,
-		title: 'Kulupu',
-		unit: 'KLP',
-		url: 'wss://rpc.kulupu.corepaper.org/ws'
 	},
 	[SubstrateNetworkKeys.KUSAMA]: {
 		color: '#000',
@@ -127,69 +121,30 @@ const substrateNetworkBase: Record<string, SubstrateNetworkDefaultConstant> = {
 		title: 'Kusama',
 		unit: 'KSM',
 		url: 'wss://kusama-rpc.polkadot.io'
-	},
-	[SubstrateNetworkKeys.POLKADOT]: {
-		color: '#E6027A',
-		decimals: 10,
-		genesisHash: SubstrateNetworkKeys.POLKADOT,
-		isTestnet: false,
-		logo: require('res/img/logos/Polkadot.png'),
-		order: 1,
-		pathId: 'polkadot',
-		prefix: 0,
-		title: 'Polkadot',
-		unit: 'DOT',
-		url: 'wss://rpc.polkadot.io'
-	},
-	[SubstrateNetworkKeys.ROCOCO]: {
-		color: '#6f36dc',
-		decimals: 12,
-		genesisHash: SubstrateNetworkKeys.ROCOCO,
-		isTestnet: true,
-		logo: require('res/img/logos/Rococo.png'),
-		order: 4,
-		pathId: 'rococo',
-		prefix: 0,
-		title: 'Rococo',
-		unit: 'ROC',
-		url: 'wss://rococo-rpc.polkadot.io'
-	},
-	[SubstrateNetworkKeys.WESTEND]: {
-		color: '#660D35',
-		decimals: 12,
-		genesisHash: SubstrateNetworkKeys.WESTEND,
-		isTestnet: true,
-		logo: require('res/img/logos/Polkadot.png'),
-		order: 3,
-		pathId: 'westend',
-		prefix: 42,
-		title: 'Westend',
-		unit: 'WND',
-		url: 'wss://westend-rpc.polkadot.io'
 	}
 };
 
 const ethereumNetworkBase: Record<string, EthereumNetworkDefaultConstants> = {
-	[EthereumNetworkKeys.FRONTIER]: {
-		color: '#8B94B3',
-		ethereumChainId: EthereumNetworkKeys.FRONTIER,
-		isTestnet: false,
-		order: 101,
-		secondaryColor: colors.background.card,
-		title: 'Ethereum'
-	},
-	[EthereumNetworkKeys.ROPSTEN]: {
-		ethereumChainId: EthereumNetworkKeys.ROPSTEN,
-		isTestnet: true,
-		order: 104,
-		title: 'Ropsten Testnet'
-	},
-	[EthereumNetworkKeys.GOERLI]: {
-		ethereumChainId: EthereumNetworkKeys.GOERLI,
-		isTestnet: true,
-		order: 105,
-		title: 'Görli Testnet'
-	}
+	// [EthereumNetworkKeys.FRONTIER]: {
+	// 	color: '#8B94B3',
+	// 	ethereumChainId: EthereumNetworkKeys.FRONTIER,
+	// 	isTestnet: false,
+	// 	order: 101,
+	// 	secondaryColor: colors.background.card,
+	// 	title: 'Ethereum'
+	// },
+	// [EthereumNetworkKeys.ROPSTEN]: {
+	// 	ethereumChainId: EthereumNetworkKeys.ROPSTEN,
+	// 	isTestnet: true,
+	// 	order: 104,
+	// 	title: 'Ropsten Testnet'
+	// },
+	// [EthereumNetworkKeys.GOERLI]: {
+	// 	ethereumChainId: EthereumNetworkKeys.GOERLI,
+	// 	isTestnet: true,
+	// 	order: 105,
+	// 	title: 'Görli Testnet'
+	// }
 };
 
 const ethereumDefaultValues = {
