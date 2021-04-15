@@ -16,7 +16,7 @@
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
 import React, { useContext, useEffect, useRef } from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 import { components } from 'styles/index';
 import { AccountsContext } from 'stores/AccountsContext';
@@ -47,22 +47,24 @@ function CreateWallet({
 
 	return (
 		<View style={components.page}>
+			<Text style={components.textBlock}>
+				Enter a name for your new wallet:
+			</Text>
 			<TextInput
 				onChangeText={updateName}
 				value={accountsStore.state.newWallet.name}
-				placeholder="Wallet name"
+				placeholder="e.g. Wallet 1"
 				autofocus={true}
 			/>
 			<Button
-				title="Create a new wallet"
+				title="Create new wallet"
 				onPress={(): void => navigation.navigate('CreateWallet2')}
 				fluid={true}
 			/>
 			<Button
-				title="Import wallet"
+				title="Import existing wallet"
 				onPress={(): void => navigation.navigate('CreateWalletImport')}
 				fluid={true}
-				secondary={true}
 			/>
 		</View>
 	);

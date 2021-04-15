@@ -16,7 +16,7 @@
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
 import React, { useContext, useState } from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
 import { components } from 'styles/index';
@@ -77,6 +77,9 @@ function CreateWalletImport({
 
 	return (
 		<View style={components.page}>
+			<Text style={components.textBlock}>
+				Enter a key phrase to import:
+			</Text>
 			<AccountSeedTextInput
 				onChangeText={onSeedTextInput}
 				onSubmitEditing={onRecoverConfirm}
@@ -93,6 +96,7 @@ function CreateWalletImport({
 				title={'Go back'}
 				onPress={(): void => navigation.goBack()}
 				fluid={true}
+				secondary={true}
 			/>
 		</View>
 	);
