@@ -22,7 +22,7 @@ import { RNCamera } from 'react-native-camera';
 
 import { useProcessBarCode } from './utils';
 
-import { colors, components, fonts } from 'styles/index';
+import { colors, fonts } from 'styles/index';
 import Button from 'components/Button';
 import { useInjectionQR } from 'e2e/injections';
 import { NetworksContext } from 'stores/NetworkContext';
@@ -30,9 +30,9 @@ import { ScannerContext } from 'stores/ScannerContext';
 import { NavigationProps } from 'types/props';
 import { Frames, TxRequestData } from 'types/scannerTypes';
 
-export default function SignTransaction({
-	navigation
-}: NavigationProps<'SignTransaction'>): React.ReactElement {
+export default function SignTransaction({}: NavigationProps<
+	'SignTransaction'
+>): React.ReactElement {
 	const scannerStore = useContext(ScannerContext);
 	const networksContextState = useContext(NetworksContext);
 	const [enableScan, setEnableScan] = useState<boolean>(true);
@@ -57,7 +57,6 @@ export default function SignTransaction({
 			setEnableScan(true);
 		};
 		setEnableScan(false);
-		showMessage('Not yet implemented');
 
 		// if (isAddNetworkSuccess) {
 		// 	setAlert(title, message, [

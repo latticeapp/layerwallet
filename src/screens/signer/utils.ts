@@ -168,13 +168,13 @@ export function useProcessBarCode(
 				strings.ERROR_NO_SENDER_FOUND
 			);
 		const seedRef = getSeedRef(sender.encryptedSeed, seedRefs);
-		const isSeedRefInvalid = seedRef && seedRef.isValid();
+		const isSeedRefValid = seedRef && seedRef.isValid();
 
 		await _unlockSeedAndSign(sender, qrInfo);
-		if (isSeedRefInvalid) {
-			navigation.navigate('SignTransactionFinish');
-		} else {
+		if (isSeedRefValid) {
 			navigation.replace('SignTransactionFinish');
+		} else {
+			navigation.navigate('SignTransactionFinish');
 		}
 	}
 
@@ -200,6 +200,7 @@ export function useProcessBarCode(
 				unsignedData,
 				networksContextState
 			);
+
 			await unlockAndNavigationToSignedQR(qrInfo);
 			scannerStore.clearMultipartProgress();
 		} catch (e) {

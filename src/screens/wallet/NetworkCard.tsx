@@ -34,22 +34,29 @@ import {
 	navigateToReceiveBalance,
 	navigateToSendBalance
 } from 'utils/navigationHelpers';
+import { Wallet } from 'types/walletTypes';
+import { useSeedRef } from 'utils/seedRefHooks';
 
 export function NetworkCard({
 	networkKey,
 	title,
-	balance
+	balance,
+	wallet
 }: {
 	networkKey?: string;
 	onPress?: ButtonListener;
 	testID?: string;
 	title: string;
+	wallet: Wallet;
 	balance?: string;
 }): ReactElement {
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
 	const networksContextState = useContext(NetworksContext);
 	const networkParams = networksContextState.getNetwork(networkKey ?? '');
 	const accountsStore = useContext(AccountsContext);
+
+	// ensure seed ref is populated prior to doing any signing/qr stuff
+	const _seedRefHooks = useSeedRef(wallet.encryptedSeed);
 
 	const onPressed = async (isSend: boolean): Promise<void> => {
 		if (isSubstrateNetworkParams(networkParams)) {

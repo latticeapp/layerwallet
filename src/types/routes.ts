@@ -1,9 +1,11 @@
+import { Wallet } from './walletTypes';
+
 export type RootStackParamList = {
 	Wallet: undefined;
 	AddNetwork: { isNew: boolean } | undefined;
 	ShowRecoveryPhrase: { seedPhrase: string };
-	RenameWallet: { wallet };
-	DeleteWallet: { wallet };
+	RenameWallet: { wallet: Wallet };
+	DeleteWallet: { wallet: Wallet };
 	CreateWallet: undefined;
 	CreateWallet2: undefined;
 	CreateWallet3: { seedPhrase: string };

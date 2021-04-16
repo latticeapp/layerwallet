@@ -209,6 +209,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 				onPress={(): void => onNetworkChosen()}
 				balance={balance.freeBalance}
 				title={networkParams.title}
+				wallet={currentWallet}
 			/>
 		);
 	};

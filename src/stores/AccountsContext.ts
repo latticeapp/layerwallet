@@ -184,7 +184,6 @@ export function useAccountContext(): AccountsContextState {
 				break;
 			}
 		}
-
 		if (targetWallet === null || targetAccountId === null) return false;
 		setState({ currentWallet: targetWallet });
 

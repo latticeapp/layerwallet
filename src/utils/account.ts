@@ -24,6 +24,7 @@ import {
 	NetworkParams
 } from 'types/networkTypes';
 import { ValidSeed } from 'types/utilTypes';
+import { NetworksContextState } from 'stores/NetworkContext';
 
 export function generateAccountId(
 	address: string,
@@ -54,10 +55,15 @@ export function generateAccountId(
 
 export function emptyAccount(
 	address = '',
-	networkKey: string = SubstrateNetworkKeys.KUSAMA
+	networkKey: string = SubstrateNetworkKeys.KUSAMA,
+	networkContext: NetworksContextState
 ): FoundAccount {
 	return {
-		accountId: '',
+		accountId: generateAccountId(
+			address,
+			networkKey,
+			networkContext.allNetworks
+		),
 		address: address,
 		createdAt: new Date().getTime(),
 		encryptedSeed: '',

@@ -318,7 +318,7 @@ export function useScannerContext(): ScannerContextState {
 			dataToSign = payloadU8a.subarray(offset);
 		}
 
-		const sender = await accountsStore.getById(
+		const sender = accountsStore.getById(
 			txRequest.data.account,
 			networkKey,
 			networkContext
@@ -333,11 +333,8 @@ export function useScannerContext(): ScannerContextState {
 		}
 
 		const recipient =
-			(await accountsStore.getById(
-				recipientAddress,
-				networkKey,
-				networkContext
-			)) || emptyAccount(recipientAddress, networkKey);
+			accountsStore.getById(recipientAddress, networkKey, networkContext) ||
+			emptyAccount(recipientAddress, networkKey, networkContext);
 
 		const qrInfo: TxQRInfo = {
 			dataToSign: dataToSign,
