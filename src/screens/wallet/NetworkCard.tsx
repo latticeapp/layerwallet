@@ -17,8 +17,9 @@
 
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
+import BN from 'bn.js';
 
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
@@ -36,11 +37,21 @@ import {
 } from 'utils/navigationHelpers';
 import { Wallet } from 'types/walletTypes';
 import { useSeedRef } from 'utils/seedRefHooks';
+import { ApiContext } from 'stores/ApiContext';
+import { RegistriesContext } from 'stores/RegistriesContext';
+import { getAddressWithPath } from 'utils/walletsUtils';
+
+interface State {
+	freeBalance: string;
+}
+
+const EMPTY_STATE: State = {
+	freeBalance: 'Loading...'
+};
 
 export function NetworkCard({
 	networkKey,
 	title,
-	balance,
 	wallet
 }: {
 	networkKey?: string;
@@ -48,15 +59,75 @@ export function NetworkCard({
 	testID?: string;
 	title: string;
 	wallet: Wallet;
-	balance?: string;
 }): ReactElement {
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
 	const networksContextState = useContext(NetworksContext);
 	const networkParams = networksContextState.getNetwork(networkKey ?? '');
 	const accountsStore = useContext(AccountsContext);
+	const [balance, setBalance] = useState(EMPTY_STATE);
 
 	// ensure seed ref is populated prior to doing any signing/qr stuff
 	const _seedRefHooks = useSeedRef(wallet.encryptedSeed);
+
+	// initialize the API using the first network the user has, if they have any
+	const { initApi, state, disconnect } = useContext(ApiContext);
+	const { networks } = networksContextState;
+	const { getTypeRegistry } = useContext(RegistriesContext);
+
+	// initialize API (TODO: move out of wallet!)
+	useEffect(() => {
+		console.log('init hook called!');
+		if (!networkKey || !networkParams) {
+			// if removing network, ensure we disconnect manually
+			if (state.isApiInitialized) {
+				disconnect(state.api);
+			}
+			return;
+		}
+		if (!isSubstrateNetworkParams(networkParams) || !networkParams.url) return;
+		const registryData = getTypeRegistry(networks, networkKey);
+		if (!registryData) return;
+		const [registry, metadata] = registryData;
+		initApi(networkKey, networkParams.url, registry, metadata);
+	}, [networkKey, state.isApiReady]);
+
+	// initialize balances
+	useEffect((): void | (() => void) => {
+		console.log('balances hook called!');
+		if (state.isApiReady) {
+			if (!networkKey || !networkParams) return;
+			if (!isSubstrateNetworkParams(networkParams) || !networkParams.url)
+				return;
+			console.log(`Use API: ${networkKey}`);
+			const path = `//${networkParams.pathId}`;
+			const address = getAddressWithPath(path, wallet);
+			const decimals = networkParams.decimals;
+			if (state.api?.derive?.balances) {
+				console.log(`FETCHING BALANCES: ${address}`);
+				let isMounted = true;
+				state.api.derive.balances
+					.all(address)
+					.then(fetchedBalance => {
+						const base = new BN(10).pow(new BN(decimals));
+						const div = fetchedBalance.availableBalance.div(base);
+						const mod = fetchedBalance.availableBalance.mod(base);
+						const nDisplayDecimals = 3;
+						if (isMounted) {
+							setBalance({
+								freeBalance:
+									div + '.' + mod.toString(10).slice(0, nDisplayDecimals)
+							});
+						}
+					})
+					.catch(error => {
+						console.log('FETCHING BALANCE ERROR', error);
+					});
+				return (): void => {
+					isMounted = false;
+				};
+			}
+		}
+	}, [state.isApiReady, wallet, networkKey]);
 
 	const onPressed = async (isSend: boolean): Promise<void> => {
 		if (isSubstrateNetworkParams(networkParams)) {
@@ -110,7 +181,7 @@ export function NetworkCard({
 					{isSubstrateNetworkParams(networkParams) && (
 						<View style={styles.contentRow}>
 							<Text style={styles.text}>
-								{balance ?? '...'} {networkParams.unit}
+								{balance?.freeBalance ?? '...'} {networkParams.unit}
 							</Text>
 						</View>
 					)}
