@@ -89,7 +89,7 @@ export function NetworkCard({
 		if (!registryData) return;
 		const [registry, metadata] = registryData;
 		initApi(networkKey, networkParams.url, registry, metadata);
-	}, [networkKey]);
+	}, [networkKey, state.isApiReady]);
 
 	// initialize balances
 	useEffect((): void | (() => void) => {
