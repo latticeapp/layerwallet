@@ -50,6 +50,7 @@ export const colors = {
 		disabled: '#aaa',
 		error: '#D73400',
 		light: '#ccc',
+		medium: '#aaa',
 		white: '#fff'
 	}
 };

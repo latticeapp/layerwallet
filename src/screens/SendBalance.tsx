@@ -19,8 +19,10 @@ import React, { useContext, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import Clipboard from '@react-native-community/clipboard';
+import DropDownPicker from 'react-native-dropdown-picker';
+import Icon from 'react-native-vector-icons/Feather';
 
-import { components } from 'styles/index';
+import { components, colors, fonts } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsStoreStateWithWallet } from 'types/walletTypes';
 import { NavigationAccountWalletProps } from 'types/props';
@@ -63,6 +65,8 @@ function SendBalance({
 		setNewAddressBookEntry(name);
 	};
 
+	const [addingNewAddress, setAddingNewAddress] = useState(false);
+
 	return (
 		<View style={components.page}>
 			<TextInput
@@ -75,93 +79,154 @@ function SendBalance({
 				clearButtonMode="unless-editing"
 				keyboardType="numeric"
 			/>
-			<TextInput
-				label={
-					<TouchableOpacity>
+			{!addingNewAddress && (
+				<>
+					<View
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							marginBottom: 8,
+							marginTop: 12
+						}}
+					>
 						<Text style={components.textInputLabelLeft}>Recipient</Text>
-					</TouchableOpacity>
-				}
-				labelRight={
+					</View>
+					<DropDownPicker
+						items={[
+							{
+								icon: (): React.ReactElement => (
+									<Icon name="plus" size={18} color="#111" />
+								),
+								label: 'Add new address',
+								value: 'new'
+							}
+						]}
+						defaultValue={undefined}
+						containerStyle={{
+							height: 42,
+							marginBottom: 20
+						}}
+						style={{
+							borderBottomLeftRadius: 8,
+							borderBottomRightRadius: 8,
+							borderColor: colors.border.light,
+							borderTopLeftRadius: 8,
+							borderTopRightRadius: 8,
+							fontFamily: fonts.regular
+						}}
+						globalTextStyle={{
+							fontFamily: fonts.regular,
+							fontSize: 18
+						}}
+						placeholder="Select an address"
+						placeholderStyle={{
+							backgroundColor: colors.text.white,
+							color: colors.text.medium
+						}}
+						itemStyle={{
+							fontFamily: fonts.regular,
+							justifyContent: 'flex-start'
+						}}
+						dropDownStyle={{
+							backgroundColor: '#fafafa',
+							borderBottomLeftRadius: 8,
+							borderBottomRightRadius: 8,
+							fontFamily: fonts.regular
+						}}
+						onChangeItem={(item): void => {
+							if (item.value === 'new') {
+								setAddingNewAddress(true);
+							} else {
+								setAddingNewAddress(false);
+							}
+						}}
+					/>
+				</>
+			)}
+			{addingNewAddress ? (
+				<View
+					style={
+						{
+							// borderRadius: 8,
+							// borderColor: colors.border.light,
+							// borderWidth: 1,
+							// paddingHorizontal: 20,
+							// paddingTop: 4,
+							// paddingBottom: 12,
+						}
+					}
+				>
+					<TextInput
+						label="New recipient"
+						labelRight={
+							<View
+								style={{
+									display: 'flex',
+									flexDirection: 'row',
+									justifyContent: 'flex-end'
+								}}
+							>
+								<TouchableOpacity
+									onPress={(): void => {
+										showMessage('Unimplemented');
+										// TODO: Go to scanner
+									}}
+									style={{ marginRight: 10 }}
+								>
+									<Text style={components.linkSmall}>Scan QR</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									onPress={async (): void => {
+										onChangeNewAddressBookEntry(await Clipboard.getString());
+										// TODO: Set focus
+									}}
+								>
+									<Text style={components.linkSmall}>Paste</Text>
+								</TouchableOpacity>
+							</View>
+						}
+						onChangeText={onChangeNewAddressBookEntry}
+						value={newAddressBookEntry}
+						placeholder="Address"
+						fluid={true}
+						autoCorrect={false}
+					/>
 					<View
 						style={{
 							display: 'flex',
 							flexDirection: 'row',
-							justifyContent: 'flex-end'
+							justifyContent: 'space-between',
+							paddingTop: 2
 						}}
 					>
-						<TouchableOpacity
+						<Button
+							title="Add recipient"
+							fluid={true}
+							style={{ width: '62%' }}
 							onPress={(): void => {
-								showMessage('Unimplemented');
-								// TODO: Go to scanner
+								return;
 							}}
-							style={{ marginRight: 10 }}
-						>
-							<Text style={components.linkSmall}>Scan QR</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							onPress={async (): void => {
-								onChangeRecipient(await Clipboard.getString());
-								// TODO: Set focus
-							}}
-						>
-							<Text style={components.linkSmall}>Paste</Text>
-						</TouchableOpacity>
-					</View>
-				}
-				onChangeText={onChangeRecipient}
-				value={recipient}
-				placeholder="Address"
-				autoCorrect={false}
-			/>
-			<Button
-				title="Send"
-				fluid={true}
-				onPress={(): void => {
-					return;
-				}}
-			/>
-			<TextInput
-				label="Add to Address Book"
-				labelRight={
-					<View
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							justifyContent: 'flex-end'
-						}}
-					>
-						<TouchableOpacity
+						/>
+						<Button
+							title="Cancel"
+							fluid={true}
+							style={{ width: '35%' }}
+							secondary={true}
 							onPress={(): void => {
-								showMessage('Unimplemented');
-								// TODO: Go to scanner
+								setAddingNewAddress(false);
 							}}
-							style={{ marginRight: 10 }}
-						>
-							<Text style={components.linkSmall}>Scan QR</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							onPress={async (): void => {
-								onChangeNewAddressBookEntry(await Clipboard.getString());
-								// TODO: Set focus
-							}}
-						>
-							<Text style={components.linkSmall}>Paste</Text>
-						</TouchableOpacity>
+						/>
 					</View>
-				}
-				onChangeText={onChangeNewAddressBookEntry}
-				value={newAddressBookEntry}
-				placeholder="Address"
-				fluid={true}
-				autoCorrect={false}
-			/>
-			<Button
-				title="Add"
-				fluid={true}
-				onPress={(): void => {
-					return;
-				}}
-			/>
+				</View>
+			) : (
+				<Button
+					title="Send"
+					fluid={true}
+					onPress={(): void => {
+						return;
+					}}
+				/>
+			)}
 		</View>
 	);
 }
