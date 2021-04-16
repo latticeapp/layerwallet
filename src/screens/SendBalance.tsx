@@ -103,7 +103,7 @@ function SendBalance({
 						]}
 						defaultValue={undefined}
 						containerStyle={{
-							height: 42,
+							height: 46,
 							marginBottom: 20
 						}}
 						style={{
@@ -144,18 +144,7 @@ function SendBalance({
 				</>
 			)}
 			{addingNewAddress ? (
-				<View
-					style={
-						{
-							// borderRadius: 8,
-							// borderColor: colors.border.light,
-							// borderWidth: 1,
-							// paddingHorizontal: 20,
-							// paddingTop: 4,
-							// paddingBottom: 12,
-						}
-					}
-				>
+				<View>
 					<TextInput
 						label="New recipient"
 						labelRight={
@@ -196,7 +185,7 @@ function SendBalance({
 							display: 'flex',
 							flexDirection: 'row',
 							justifyContent: 'space-between',
-							paddingTop: 2
+							paddingTop: 8
 						}}
 					>
 						<Button
