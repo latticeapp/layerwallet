@@ -106,8 +106,7 @@ export function NetworkCard({
 				console.log(`FETCHING BALANCES: ${address}`);
 				let isMounted = true;
 				state.api.derive.balances
-					.all(address)
-					.then(fetchedBalance => {
+					.all(address, fetchedBalance => {
 						const base = new BN(10).pow(new BN(decimals));
 						const div = fetchedBalance.availableBalance.div(base);
 						const mod = fetchedBalance.availableBalance.mod(base);
