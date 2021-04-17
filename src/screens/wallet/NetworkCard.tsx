@@ -153,10 +153,6 @@ export function NetworkCard({
 	};
 	const onOptionSelect = async (value: string): Promise<void> => {
 		switch (value) {
-			case 'PathDelete':
-				accountsStore.clearAddress();
-				resetNavigationTo(navigation, 'Wallet');
-				break;
 			case 'SignTransaction':
 				navigation.navigate('SignTransaction');
 				break;
@@ -191,10 +187,6 @@ export function NetworkCard({
 							{
 								text: 'Sign transaction',
 								value: 'SignTransaction'
-							},
-							{
-								text: 'Remove this network',
-								value: 'PathDelete'
 							}
 						]}
 					/>

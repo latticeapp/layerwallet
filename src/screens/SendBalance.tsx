@@ -86,14 +86,6 @@ function SendBalance({
 
 	const [addingNewAddress, setAddingNewAddress] = useState(false);
 
-	// TODO XXX
-	useEffect(() => {
-		const fn = async () => {
-			const addressbook = await accountsStore.getAddressBookEntries();
-			console.log('final:', addressbook);
-		};
-	}, []);
-
 	return (
 		<View style={components.page}>
 			<TextInput
