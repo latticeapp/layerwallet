@@ -60,9 +60,6 @@ function SendBalance({
 	};
 
 	const [recipient, setRecipient] = useState('');
-	const onChangeRecipient = async (name: string): Promise<void> => {
-		setRecipient(name);
-	};
 
 	const [newAddressBookEntry, setNewAddressBookEntry] = useState('');
 	const [newAddressBookEntryIsValid, setNewAddressBookEntryIsValid] = useState(
@@ -106,7 +103,6 @@ function SendBalance({
 				value={amount}
 				placeholder="0"
 				autoCorrect={false}
-				clearButtonMode="unless-editing"
 				keyboardType="numeric"
 			/>
 			{!addingNewAddress && (
@@ -137,7 +133,8 @@ function SendBalance({
 									value: 'new'
 								}
 							])}
-						defaultValue={undefined}
+						defaultValue={recipient}
+						value={recipient}
 						containerStyle={{
 							height: 46,
 							marginBottom: 20
@@ -185,6 +182,7 @@ function SendBalance({
 				<View>
 					<TextInput
 						label="New recipient"
+						clearButtonMode="unless-editing"
 						labelRight={
 							<View
 								style={{
@@ -241,7 +239,7 @@ function SendBalance({
 								);
 								onChangeNewAddressBookEntry('');
 								setAddingNewAddress(false);
-								// TODO: set as Recipient
+								setRecipient(newAddressBookEntry);
 							}}
 						/>
 						<Button
