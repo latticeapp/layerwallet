@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import Clipboard from '@react-native-community/clipboard';

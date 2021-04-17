@@ -18,9 +18,11 @@
 import React, { ReactElement, useContext } from 'react';
 import { View, Text, BackHandler } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 import { NetworkCard } from './NetworkCard';
 
+import { UnknownNetworkKeys } from 'constants/networkSpecs';
 import { components, colors, fonts, fontStyles } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
@@ -148,6 +150,49 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 						title="Switch network"
 						onPress={(): void => navigation.navigate('AddNetwork')}
 						fluid={true}
+					/>
+					<DropDownPicker
+						items={Array.from(allNetworks.entries())
+                                                       .filter(([key, _nParams]) => key !== UnknownNetworkKeys.UNKNOWN)
+							.map(([_key, nParams]) => ({
+								label: nParams.title,
+								value: nParams.title
+							}))}
+						defaultValue={undefined}
+						containerStyle={{
+							height: 46,
+							marginBottom: 20
+						}}
+						style={{
+							borderBottomLeftRadius: 8,
+							borderBottomRightRadius: 8,
+							borderColor: colors.border.light,
+							borderTopLeftRadius: 8,
+							borderTopRightRadius: 8,
+							fontFamily: fonts.regular
+						}}
+						globalTextStyle={{
+							fontFamily: fonts.regular,
+							fontSize: 18
+						}}
+						placeholder="Select a network"
+						placeholderStyle={{
+							backgroundColor: colors.text.white,
+							color: colors.text.medium
+						}}
+						itemStyle={{
+							fontFamily: fonts.regular,
+							justifyContent: 'flex-start'
+						}}
+						dropDownStyle={{
+							backgroundColor: '#fafafa',
+							borderBottomLeftRadius: 8,
+							borderBottomRightRadius: 8,
+							fontFamily: fonts.regular
+						}}
+						onChangeItem={(item): void => {
+							// TODO: Switch chain
+						}}
 					/>
 				</View>
 			</View>
