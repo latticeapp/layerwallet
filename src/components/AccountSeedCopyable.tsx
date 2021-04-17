@@ -17,7 +17,7 @@
 
 import Clipboard from '@react-native-community/clipboard';
 import React from 'react';
-import { Text } from 'react-native';
+import { Text, Alert } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
 import { components, fonts, colors } from 'styles/index';
@@ -31,11 +31,24 @@ export default function AccountSeedCopyable({
 	return (
 		<TouchableItem
 			onPress={(): void => {
-				// only allow the copy of the key phrase in dev environment
-				if (__DEV__) {
-					showMessage('Recovery phrase copied.');
-					Clipboard.setString(seed);
-				}
+				Alert.alert(
+					'Copy recovery phrase?',
+					'This could expose it to malicious software if clipboard sync is enabled.',
+					[
+						{
+							onPress: (): void => {
+								showMessage('Recovery phrase copied.');
+								Clipboard.setString(seed);
+							},
+							style: 'destructive',
+							text: 'Copy'
+						},
+						{
+							style: 'cancel',
+							text: 'Cancel'
+						}
+					]
+				);
 			}}
 			style={components.textBlockPreformatted}
 		>

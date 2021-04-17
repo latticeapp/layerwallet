@@ -102,7 +102,7 @@ export function validateSeed(seed: string, validBip39Seed: boolean): ValidSeed {
 		return {
 			accountRecoveryAllowed: true,
 			bip39: false,
-			reason: 'This key phrase is not a valid BIP39 seed.',
+			reason: 'This recovery phrase is not a valid BIP39 seed.',
 			valid: false
 		};
 	}

@@ -258,8 +258,10 @@ function SendBalance({
 					title="Send"
 					fluid={true}
 					onPress={(): void => {
-                                          if (!amount || !recipient) return;
-                                          showMessage(`TODO: Send ${amount} ${networkParams.unit} to ${recipient}`);
+						if (!amount || !recipient) return;
+						showMessage(
+							`TODO: Send ${amount} ${networkParams.unit} to ${recipient}`
+						);
 					}}
 				/>
 			)}

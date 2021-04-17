@@ -37,7 +37,7 @@ function CreateWallet3({
 	const createSeedRefWithNewSeed = useNewSeedRef();
 	const createWallet = async (): Promise<void> => {
 		if (!isSeedMatching) {
-			return showMessage('This key phrase does not match the original seed.');
+			return showMessage('This recovery phrase does not match the original seed.');
 		}
 		try {
 			await accountsStore.saveNewWallet(
@@ -58,7 +58,7 @@ function CreateWallet3({
 	return (
 		<View style={components.page}>
 			<Text style={components.textBlock}>
-				Retype the key phrase to confirm:
+				Retype the recovery phrase to confirm:
 			</Text>
 			<AccountSeedTextInput
 				onChangeText={onSeedTextInput}
