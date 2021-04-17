@@ -153,43 +153,19 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 					/>
 					<DropDownPicker
 						items={Array.from(allNetworks.entries())
-                                                       .filter(([key, _nParams]) => key !== UnknownNetworkKeys.UNKNOWN)
+							.filter(([key, _nParams]) => key !== UnknownNetworkKeys.UNKNOWN)
 							.map(([_key, nParams]) => ({
 								label: nParams.title,
 								value: nParams.title
 							}))}
 						defaultValue={undefined}
-						containerStyle={{
-							height: 46,
-							marginBottom: 20
-						}}
-						style={{
-							borderBottomLeftRadius: 8,
-							borderBottomRightRadius: 8,
-							borderColor: colors.border.light,
-							borderTopLeftRadius: 8,
-							borderTopRightRadius: 8,
-							fontFamily: fonts.regular
-						}}
-						globalTextStyle={{
-							fontFamily: fonts.regular,
-							fontSize: 18
-						}}
+						containerStyle={components.dropdownContainer}
+						style={components.dropdown}
+						globalTextStyle={components.dropdownText}
 						placeholder="Select a network"
-						placeholderStyle={{
-							backgroundColor: colors.text.white,
-							color: colors.text.medium
-						}}
-						itemStyle={{
-							fontFamily: fonts.regular,
-							justifyContent: 'flex-start'
-						}}
-						dropDownStyle={{
-							backgroundColor: '#fafafa',
-							borderBottomLeftRadius: 8,
-							borderBottomRightRadius: 8,
-							fontFamily: fonts.regular
-						}}
+						placeholderStyle={components.dropdownPlaceholder}
+						itemStyle={components.dropdownItem}
+						dropDownStyle={components.dropdownDropdown}
 						onChangeItem={(item): void => {
 							// TODO: Switch chain
 						}}

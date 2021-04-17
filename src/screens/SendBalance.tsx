@@ -23,7 +23,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
 import { decodeAddress } from '@polkadot/keyring';
 
-import { components, colors, fonts } from 'styles/index';
+import { components } from 'styles/index';
 import { AddressBookContext } from 'stores/AddressBookContext';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsStoreStateWithWallet } from 'types/walletTypes';
@@ -127,37 +127,13 @@ function SendBalance({
 							])}
 						defaultValue={recipient}
 						value={recipient}
-						containerStyle={{
-							height: 46,
-							marginBottom: 20
-						}}
-						style={{
-							borderBottomLeftRadius: 8,
-							borderBottomRightRadius: 8,
-							borderColor: colors.border.light,
-							borderTopLeftRadius: 8,
-							borderTopRightRadius: 8,
-							fontFamily: fonts.regular
-						}}
-						globalTextStyle={{
-							fontFamily: fonts.regular,
-							fontSize: 18
-						}}
+						containerStyle={components.dropdownContainer}
+						style={components.dropdown}
+						globalTextStyle={components.dropdownText}
+						placeholderStyle={components.dropdownPlaceholder}
+						itemStyle={components.dropdownItem}
+						dropDownStyle={components.dropdownDropdown}
 						placeholder="Select an address"
-						placeholderStyle={{
-							backgroundColor: colors.text.white,
-							color: colors.text.medium
-						}}
-						itemStyle={{
-							fontFamily: fonts.regular,
-							justifyContent: 'flex-start'
-						}}
-						dropDownStyle={{
-							backgroundColor: '#fafafa',
-							borderBottomLeftRadius: 8,
-							borderBottomRightRadius: 8,
-							fontFamily: fonts.regular
-						}}
 						onChangeItem={(item): void => {
 							if (item.value === 'new') {
 								setAddingNewAddress(true);

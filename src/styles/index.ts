@@ -96,6 +96,36 @@ export const components = {
 		fontFamily: fonts.regular,
 		fontSize: 17
 	},
+	dropdown: {
+		borderBottomLeftRadius: 8,
+		borderBottomRightRadius: 8,
+		borderColor: colors.border.light,
+		borderTopLeftRadius: 8,
+		borderTopRightRadius: 8,
+		fontFamily: fonts.regular
+	},
+	dropdownContainer: {
+		height: 46,
+		marginBottom: 20
+	},
+	dropdownDropdown: {
+		backgroundColor: '#fafafa',
+		borderBottomLeftRadius: 8,
+		borderBottomRightRadius: 8,
+		fontFamily: fonts.regular
+	},
+	dropdownItem: {
+		fontFamily: fonts.regular,
+		justifyContent: 'flex-start'
+	},
+	dropdownPlaceholder: {
+		backgroundColor: colors.text.white,
+		color: colors.text.medium
+	},
+	dropdownText: {
+		fontFamily: fonts.regular,
+		fontSize: 18
+	},
 	link: {
 		color: colors.text.accent,
 		fontFamily: fonts.regular,
