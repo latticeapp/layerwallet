@@ -15,14 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import Clipboard from '@react-native-community/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
+import { decodeAddress } from '@polkadot/keyring';
 
 import { components, colors, fonts } from 'styles/index';
+import { AddressBookContext } from 'stores/AddressBookContext';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsStoreStateWithWallet } from 'types/walletTypes';
 import { NavigationAccountWalletProps } from 'types/props';
@@ -43,6 +45,8 @@ function SendBalance({
 }: NavigationAccountWalletProps<'SendBalance'>): React.ReactElement {
 	const path = route.params.path;
 	const networksContextState = useContext(NetworksContext);
+	const addressBookContextState = useContext(AddressBookContext);
+
 	const networkKey = getNetworkKey(
 		path,
 		accountsStore.state.currentWallet,
@@ -61,11 +65,37 @@ function SendBalance({
 	};
 
 	const [newAddressBookEntry, setNewAddressBookEntry] = useState('');
-	const onChangeNewAddressBookEntry = async (name: string): Promise<void> => {
-		setNewAddressBookEntry(name);
+	const [newAddressBookEntryIsValid, setNewAddressBookEntryIsValid] = useState(
+		true
+	);
+	const onChangeNewAddressBookEntry = async (
+		newEntry: string
+	): Promise<void> => {
+		if (!newEntry) {
+			setNewAddressBookEntry(newEntry);
+			setNewAddressBookEntryIsValid(true);
+			return;
+		}
+		try {
+			const decoded = decodeAddress(newEntry);
+			console.log('decoded:', decoded);
+			setNewAddressBookEntry(newEntry);
+			setNewAddressBookEntryIsValid(true);
+		} catch (e) {
+			setNewAddressBookEntry(newEntry);
+			setNewAddressBookEntryIsValid(false);
+		}
 	};
 
 	const [addingNewAddress, setAddingNewAddress] = useState(false);
+
+	// TODO XXX
+	useEffect(() => {
+		const fn = async () => {
+			const addressbook = await accountsStore.getAddressBookEntries();
+			console.log('final:', addressbook);
+		};
+	}, []);
 
 	return (
 		<View style={components.page}>
@@ -92,15 +122,21 @@ function SendBalance({
 						<Text style={components.textInputLabelLeft}>Recipient</Text>
 					</View>
 					<DropDownPicker
-						items={[
-							{
-								icon: (): React.ReactElement => (
-									<Icon name="plus" size={18} color="#111" />
-								),
-								label: 'Add new address',
-								value: 'new'
-							}
-						]}
+						items={addressBookContextState
+							.getAddressBookEntries()
+							.map(a => ({
+								label: a,
+								value: a
+							}))
+							.concat([
+								{
+									icon: (): React.ReactElement => (
+										<Icon name="plus" size={18} color="#111" />
+									),
+									label: 'Add new address',
+									value: 'new'
+								}
+							])}
 						defaultValue={undefined}
 						containerStyle={{
 							height: 46,
@@ -136,8 +172,10 @@ function SendBalance({
 						onChangeItem={(item): void => {
 							if (item.value === 'new') {
 								setAddingNewAddress(true);
+								setRecipient(null);
 							} else {
 								setAddingNewAddress(false);
+								setRecipient(item.value);
 							}
 						}}
 					/>
@@ -166,7 +204,8 @@ function SendBalance({
 								</TouchableOpacity>
 								<TouchableOpacity
 									onPress={async (): void => {
-										onChangeNewAddressBookEntry(await Clipboard.getString());
+										const newEntry = await Clipboard.getString();
+										onChangeNewAddressBookEntry(newEntry);
 										// TODO: Set focus
 									}}
 								>
@@ -189,11 +228,20 @@ function SendBalance({
 						}}
 					>
 						<Button
-							title="Add recipient"
+							title={
+								newAddressBookEntryIsValid ? 'Add recipient' : 'Invalid address'
+							}
 							fluid={true}
+							disabled={!newAddressBookEntry || !newAddressBookEntryIsValid}
 							style={{ width: '62%' }}
 							onPress={(): void => {
-								return;
+								if (!newAddressBookEntry) return;
+								addressBookContextState.saveAddressBookEntry(
+									newAddressBookEntry
+								);
+								onChangeNewAddressBookEntry('');
+								setAddingNewAddress(false);
+								// TODO: set as Recipient
 							}}
 						/>
 						<Button
@@ -212,7 +260,8 @@ function SendBalance({
 					title="Send"
 					fluid={true}
 					onPress={(): void => {
-						return;
+                                          if (!amount || !recipient) return;
+                                          showMessage(`TODO: Send ${amount} ${networkParams.unit} to ${recipient}`);
 					}}
 				/>
 			)}

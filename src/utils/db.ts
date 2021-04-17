@@ -35,8 +35,8 @@ function handleError(e: Error, label: string): any[] {
  * ========================================
  */
 const walletsStore = {
-	keychainService: 'parity_signer_wallets',
-	sharedPreferencesName: 'parity_signer_wallets'
+	keychainService: 'layer_wallet_wallets',
+	sharedPreferencesName: 'layer_wallet_wallets'
 };
 const currentIdentityStorageLabel = 'wallets_v1';
 
@@ -64,12 +64,48 @@ export const saveWallets = (wallets: Wallet[]): void => {
 
 /*
  * ========================================
+ *	Address Book Store
+ * ========================================
+ */
+const addressBookStore = {
+	keychainService: 'layer_wallet_address_book',
+	sharedPreferencesName: 'layer_wallet_address_book'
+};
+const currentAddressBookStorageLabel = 'addressbook_v1';
+
+export async function loadAddressBook(version = 1): Promise<string[]> {
+	const addressBookStorageLabel = `addressbook_v${version}`;
+	try {
+		const addressbook = await SecureStorage.getItem(
+			addressBookStorageLabel,
+			addressBookStore
+		);
+		if (!addressbook) return [];
+		return JSON.parse(addressbook);
+	} catch (e) {
+		console.log('Error loading address book');
+		return handleError(e, 'addresses');
+	}
+}
+
+export const saveAddressBook = (addressbook: string[]): void => {
+	console.log('saving', addressbook);
+
+	SecureStorage.setItem(
+		currentAddressBookStorageLabel,
+		JSON.stringify(addressbook),
+		addressBookStore
+	);
+};
+
+/*
+ * ========================================
  *	Networks Store
  * ========================================
  */
 const networkStorage = {
-	keychainService: 'parity_signer_updated_networks',
-	sharedPreferencesName: 'parity_signer_updated_networks'
+	keychainService: 'layer_wallet_updated_networks',
+	sharedPreferencesName: 'layer_wallet_updated_networks'
 };
 const currentNetworkStorageLabel = 'networks_v4';
 
@@ -86,7 +122,6 @@ export async function loadNetworks(): Promise<
 		const networksEntries = JSON.parse(networksJson);
 		return mergeNetworks(SUBSTRATE_NETWORK_LIST, networksEntries);
 	} catch (e) {
-		handleError(e, 'networks');
 		return new Map();
 	}
 }

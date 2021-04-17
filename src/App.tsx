@@ -35,6 +35,10 @@ import {
 import { useNetworksContext, NetworksContext } from 'stores/NetworkContext';
 import { useScannerContext, ScannerContext } from 'stores/ScannerContext';
 import { useAccountContext, AccountsContext } from 'stores/AccountsContext';
+import {
+	useAddressBookContext,
+	AddressBookContext
+} from 'stores/AddressBookContext';
 import { SeedRefsContext, useSeedRefStore } from 'stores/SeedRefStore';
 import { AppProps, getLaunchArgs } from 'e2e/injections';
 import { ApiContext, useApiContext } from 'stores/ApiContext';
@@ -62,6 +66,7 @@ export default function App(props: AppProps): React.ReactElement {
 	const seedRefContext = useSeedRefStore();
 	const networkContext = useNetworksContext();
 	const accountsContext = useAccountContext();
+	const addressBookContext = useAddressBookContext();
 	const scannerContext = useScannerContext();
 	const registriesContext = useRegistriesStore();
 	const apiContext = useApiContext();
@@ -84,30 +89,36 @@ export default function App(props: AppProps): React.ReactElement {
 	return (
 		<NetworksContext.Provider value={networkContext}>
 			<AccountsContext.Provider value={accountsContext}>
-				<ScannerContext.Provider value={scannerContext}>
-					<RegistriesContext.Provider value={registriesContext}>
-						<SeedRefsContext.Provider value={seedRefContext}>
-							<ApiContext.Provider value={apiContext}>
-								<MenuProvider backHandler={true}>
-									<StatusBar
-										barStyle="light-content"
-										backgroundColor={colors.background.app}
-									/>
-									<NavigationContainer theme={navTheme}>
-										{hasInitializedOnce ? renderStacks() : <LoadingContainer />}
-									</NavigationContainer>
-									<FlashMessage
-										position="top"
-										style={{ backgroundColor: colors.background.accentDark }}
-										textStyle={{ fontFamily: fonts.regular }}
-										titleStyle={{ fontFamily: fonts.regular }}
-										duration={3000}
-									/>
-								</MenuProvider>
-							</ApiContext.Provider>
-						</SeedRefsContext.Provider>
-					</RegistriesContext.Provider>
-				</ScannerContext.Provider>
+				<AddressBookContext.Provider value={addressBookContext}>
+					<ScannerContext.Provider value={scannerContext}>
+						<RegistriesContext.Provider value={registriesContext}>
+							<SeedRefsContext.Provider value={seedRefContext}>
+								<ApiContext.Provider value={apiContext}>
+									<MenuProvider backHandler={true}>
+										<StatusBar
+											barStyle="light-content"
+											backgroundColor={colors.background.app}
+										/>
+										<NavigationContainer theme={navTheme}>
+											{hasInitializedOnce ? (
+												renderStacks()
+											) : (
+												<LoadingContainer />
+											)}
+										</NavigationContainer>
+										<FlashMessage
+											position="top"
+											style={{ backgroundColor: colors.background.accentDark }}
+											textStyle={{ fontFamily: fonts.regular }}
+											titleStyle={{ fontFamily: fonts.regular }}
+											duration={3000}
+										/>
+									</MenuProvider>
+								</ApiContext.Provider>
+							</SeedRefsContext.Provider>
+						</RegistriesContext.Provider>
+					</ScannerContext.Provider>
+				</AddressBookContext.Provider>
 			</AccountsContext.Provider>
 		</NetworksContext.Provider>
 	);
