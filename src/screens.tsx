@@ -26,7 +26,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { colors, fonts } from 'styles/index';
 import Wallet from 'screens/wallet/Wallet';
-import AddNetwork from 'screens/AddNetwork';
 import ShowRecoveryPhrase from 'screens/ShowRecoveryPhrase';
 import RenameWallet from 'screens/RenameWallet';
 import DeleteWallet from 'screens/DeleteWallet';
@@ -80,9 +79,6 @@ const stackNavigationOptions = {
 	headerTitle: (t): React.ReactNode => {
 		let title, isRoot;
 		switch (t.children) {
-			case 'AddNetwork':
-				title = 'Select Network';
-				break;
 			case 'ShowRecoveryPhrase':
 				title = 'Show Recovery Phrase';
 				break;
@@ -158,7 +154,6 @@ export const AppNavigator = (): React.ReactElement => (
 			component={Wallet}
 			options={{ animationEnabled: false }}
 		/>
-		<ScreenStack.Screen name="AddNetwork" component={AddNetwork} />
 		<ScreenStack.Screen
 			name="ShowRecoveryPhrase"
 			component={ShowRecoveryPhrase}

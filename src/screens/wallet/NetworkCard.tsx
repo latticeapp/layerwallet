@@ -22,7 +22,6 @@ import { StyleSheet, View, Text } from 'react-native';
 import BN from 'bn.js';
 
 import { NetworksContext } from 'stores/NetworkContext';
-import { AccountsContext } from 'stores/AccountsContext';
 import AccountIcon from 'components/AccountIcon';
 import Button from 'components/Button';
 import PopupMenu from 'components/PopupMenu';
@@ -31,12 +30,10 @@ import { RootStackParamList } from 'types/routes';
 import { isSubstrateNetworkParams } from 'types/networkTypes';
 import { colors, fonts, fontStyles } from 'styles/index';
 import {
-	resetNavigationTo,
 	navigateToReceiveBalance,
 	navigateToSendBalance
 } from 'utils/navigationHelpers';
 import { Wallet } from 'types/walletTypes';
-import { useSeedRef } from 'utils/seedRefHooks';
 import { ApiContext } from 'stores/ApiContext';
 import { RegistriesContext } from 'stores/RegistriesContext';
 import { getAddressWithPath } from 'utils/walletsUtils';
@@ -63,11 +60,7 @@ export function NetworkCard({
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
 	const networksContextState = useContext(NetworksContext);
 	const networkParams = networksContextState.getNetwork(networkKey ?? '');
-	const accountsStore = useContext(AccountsContext);
 	const [balance, setBalance] = useState(EMPTY_STATE);
-
-	// ensure seed ref is populated prior to doing any signing/qr stuff
-	const _seedRefHooks = useSeedRef(wallet.encryptedSeed);
 
 	// initialize the API using the first network the user has, if they have any
 	const { initApi, state, disconnect } = useContext(ApiContext);
@@ -80,7 +73,7 @@ export function NetworkCard({
 		if (!networkKey || !networkParams) {
 			// if removing network, ensure we disconnect manually
 			if (state.isApiInitialized) {
-				disconnect(state.api);
+				disconnect();
 			}
 			return;
 		}

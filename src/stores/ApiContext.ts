@@ -21,7 +21,7 @@ export type ApiContextState = {
 		registry?: TypeRegistry,
 		metadata?: Record<string, string>
 	) => void;
-	disconnect: (api: ApiPromise | null) => void;
+	disconnect: () => void;
 };
 
 const defaultApiState = {

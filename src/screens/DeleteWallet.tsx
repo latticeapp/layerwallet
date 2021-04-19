@@ -24,17 +24,20 @@ import { AccountsContext } from 'stores/AccountsContext';
 import Button from 'components/Button';
 import { NavigationAccountWalletProps } from 'types/props';
 import { resetNavigationTo } from 'utils/navigationHelpers';
+import { ApiContext } from 'stores/ApiContext';
 
 type Props = NavigationAccountWalletProps<'DeleteWallet'>;
 
 function DeleteWallet({ navigation, route }: Props): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
+	const { disconnect } = useContext(ApiContext);
 	const { wallet } = route.params;
 
 	const deleteWallet = (): void => {
 		try {
 			resetNavigationTo(navigation, 'Settings');
 			accountsStore.deleteWallet(wallet);
+			disconnect();
 			showMessage('Wallet deleted.');
 		} catch (err) {
 			console.error(err);

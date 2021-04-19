@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { View, Text, BackHandler } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import DropDownPicker from 'react-native-dropdown-picker';
 
 import { NetworkCard } from './NetworkCard';
+import { SelectNetworkDropdown } from './SelectNetworkDropdown';
 
 import { UnknownNetworkKeys } from 'constants/networkSpecs';
 import { components, colors, fonts, fontStyles } from 'styles/index';
@@ -33,14 +33,19 @@ import {
 } from 'types/networkTypes';
 import { NavigationProps } from 'types/props';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
-import Button from 'components/Button';
 import Onboarding from 'components/Onboarding';
 import NavigationTab from 'components/NavigationTab';
 import { ApiContext } from 'stores/ApiContext';
 
-function WalletConnectionBar(): React.ReactElement | null {
+function WalletConnectionBar({
+	isDeriving
+}: {
+	isDeriving: boolean;
+}): React.ReactElement | null {
 	const { state } = useContext(ApiContext);
-	const text = state.apiError
+	const text = isDeriving
+		? 'Deriving account...'
+		: state.apiError
 		? `ERROR: ${state.apiError}`
 		: !state.isApiInitialized
 		? 'Waiting for API connection...'
@@ -80,6 +85,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const { wallets, currentWallet, loaded } = accountsStore.state;
 	const networkContextState = useContext(NetworksContext);
+	const [isDeriving, setIsDeriving] = useState(false);
 	const { allNetworks } = networkContextState;
 
 	// catch android back button and prevent exiting the app
@@ -143,32 +149,18 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	return (
 		<>
 			<View style={components.pageWide}>
-				{currentWallet?.account && <WalletConnectionBar />}
+				{(currentWallet?.account || isDeriving) && (
+					<WalletConnectionBar isDeriving={isDeriving} />
+				)}
 				{networkKey && networkParams && renderNetwork()}
 				<View style={{ marginBottom: 12, paddingHorizontal: 15 }}>
-					<Button
-						title="Switch network"
-						onPress={(): void => navigation.navigate('AddNetwork')}
-						fluid={true}
-					/>
-					<DropDownPicker
-						items={Array.from(allNetworks.entries())
-							.filter(([key, _nParams]) => key !== UnknownNetworkKeys.UNKNOWN)
-							.map(([_key, nParams]) => ({
-								label: nParams.title,
-								value: nParams.title
-							}))}
-						defaultValue={undefined}
-						containerStyle={components.dropdownContainer}
-						style={components.dropdown}
-						globalTextStyle={components.dropdownText}
-						placeholder="Select a network"
-						placeholderStyle={components.dropdownPlaceholder}
-						itemStyle={components.dropdownItem}
-						dropDownStyle={components.dropdownDropdown}
-						onChangeItem={(item): void => {
-							// TODO: Switch chain
-						}}
+					<SelectNetworkDropdown
+						currentWallet={currentWallet}
+						defaultValue={networkKey}
+						networks={Array.from(allNetworks.entries()).filter(
+							([key, _nParams]) => key !== UnknownNetworkKeys.UNKNOWN
+						)}
+						setIsDeriving={setIsDeriving}
 					/>
 				</View>
 			</View>

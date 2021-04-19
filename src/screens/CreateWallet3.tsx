@@ -46,7 +46,7 @@ function CreateWallet3({
 				route.params.seedPhrase,
 				createSeedRefWithNewSeed
 			);
-			resetNavigationTo(navigation, 'AddNetwork');
+			resetNavigationTo(navigation, 'Wallet');
 		} catch (e) {
 			showMessage(e.message);
 		}
