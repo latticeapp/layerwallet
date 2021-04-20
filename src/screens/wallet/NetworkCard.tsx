@@ -146,8 +146,8 @@ export function NetworkCard({
 	};
 	const onOptionSelect = async (value: string): Promise<void> => {
 		switch (value) {
-			case 'SignTransaction':
-				navigation.navigate('SignTransaction');
+			case 'QrScanner':
+				navigation.navigate('QrScanner');
 				break;
 		}
 	};
@@ -179,7 +179,7 @@ export function NetworkCard({
 						menuItems={[
 							{
 								text: 'Sign transaction',
-								value: 'SignTransaction'
+								value: 'QrScanner'
 							}
 						]}
 					/>

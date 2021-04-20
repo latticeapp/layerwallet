@@ -30,9 +30,10 @@ import { ScannerContext } from 'stores/ScannerContext';
 import { NavigationProps } from 'types/props';
 import { Frames, TxRequestData } from 'types/scannerTypes';
 
-export default function SignTransaction({}: NavigationProps<
-	'SignTransaction'
->): React.ReactElement {
+export default function QrScanner({
+	navigation,
+	route
+}: NavigationProps<'QrScanner'>): React.ReactElement {
 	const scannerStore = useContext(ScannerContext);
 	const networksContextState = useContext(NetworksContext);
 	const [enableScan, setEnableScan] = useState<boolean>(true);
@@ -61,7 +62,7 @@ export default function SignTransaction({}: NavigationProps<
 		// if (isAddNetworkSuccess) {
 		// 	setAlert(title, message, [
 		// 		{
-		// 			testID: testIDs.SignTransaction.networkAddSuccessButton,
+		// 			testID: testIDs.QrScanner.networkAddSuccessButton,
 		// 			text: 'Done'
 		// 		}
 		// 	]);
@@ -117,7 +118,16 @@ export default function SignTransaction({}: NavigationProps<
 			return;
 		}
 		setLastFrame(event.rawData);
-		await processBarCode(event as TxRequestData);
+		const addressOrUndefined = await processBarCode(event as TxRequestData);
+		if (route.params?.setAddress) {
+			if (addressOrUndefined) {
+				navigation.goBack();
+				route.params.setAddress(addressOrUndefined);
+			} else {
+				navigation.goBack();
+				showMessage('Could not parse address');
+			}
+		}
 	};
 
 	useEffect(() => {

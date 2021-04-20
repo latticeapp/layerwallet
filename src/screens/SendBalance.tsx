@@ -41,6 +41,7 @@ interface Props {
 
 function SendBalance({
 	accountsStore,
+	navigation,
 	route
 }: NavigationAccountWalletProps<'SendBalance'>): React.ReactElement {
 	const path = route.params.path;
@@ -161,8 +162,11 @@ function SendBalance({
 							>
 								<TouchableOpacity
 									onPress={(): void => {
-										showMessage('Unimplemented');
-										// TODO: Go to scanner
+										navigation.navigate('QrScanner', {
+											setAddress: (address: string) => {
+												setNewAddressBookEntry(address);
+											}
+										});
 									}}
 									style={{ marginRight: 10 }}
 								>

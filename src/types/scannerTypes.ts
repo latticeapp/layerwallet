@@ -33,7 +33,15 @@ export interface TxRequestData {
 export type ParsedData =
 	| SubstrateParsedData
 	| EthereumParsedData
+	| AddressParsedData
 	| NetworkParsedData;
+
+export type AddressParsedData = {
+	action: 'address';
+	data: {
+		address: string;
+	};
+};
 
 export type NetworkParsedData = {
 	action: 'addNetwork';
@@ -176,4 +184,10 @@ export function isNetworkParsedData(
 	parsedData: ParsedData | null
 ): parsedData is NetworkParsedData {
 	return (parsedData as NetworkParsedData).action === 'addNetwork';
+}
+
+export function isAddressParsedData(
+	parsedData: ParsedData | null
+): parsedData is AddressParsedData {
+	return (parsedData as AddressParsedData).action === 'address';
 }

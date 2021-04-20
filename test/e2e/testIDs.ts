@@ -56,7 +56,7 @@ const testIDs = {
 		passwordInput: 'wallet_backup_password_input',
 		seedText: 'wallet_backup_seed'
 	},
-	SignTransaction: {
+	QrScanner: {
 		networkAddSuccessButton: 'qr_scanner_add_network_button'
 	},
 	SignTransactionFinish: {

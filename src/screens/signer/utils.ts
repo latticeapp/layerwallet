@@ -30,6 +30,7 @@ import { RootStackParamList } from 'types/routes';
 import {
 	CompletedParsedData,
 	EthereumParsedData,
+	isAddressParsedData,
 	isMultiFramesInfo,
 	isMultipartData,
 	isNetworkParsedData,
@@ -45,7 +46,10 @@ import {
 	isJsonString,
 	rawDataToU8A
 } from 'utils/decoders';
-import { getWalletFromSender } from 'utils/walletsUtils';
+import {
+	extractAddressFromAccountId,
+	getWalletFromSender
+} from 'utils/walletsUtils';
 import { SeedRefClass } from 'utils/native';
 
 function getSeedRef(
@@ -64,21 +68,27 @@ export function useProcessBarCode(
 		isSuccess?: boolean
 	) => void,
 	networksContextState: NetworksContextState
-): (txRequestData: TxRequestData) => Promise<void> {
+): (txRequestData: TxRequestData) => Promise<undefined | string> {
 	const { allNetworks, networks } = networksContextState;
 	const accountsStore = useContext(AccountsContext);
 	const scannerStore = useContext(ScannerContext);
 	const [seedRefs] = useContext<SeedRefsState>(SeedRefsContext);
 	const navigation: StackNavigationProp<
 		RootStackParamList,
-		'SignTransaction'
+		'QrScanner'
 	> = useNavigation();
 
 	async function parseQrData(
 		txRequestData: TxRequestData
 	): Promise<ParsedData> {
 		if (isAddressString(txRequestData.data)) {
-			throw new Error(strings.ERROR_ADDRESS_MESSAGE);
+			const address = extractAddressFromAccountId(txRequestData.data);
+			return {
+				action: 'address',
+				data: {
+					address
+				}
+			};
 		} else if (isJsonString(txRequestData.data)) {
 			// Add Network
 			const parsedJsonData = JSON.parse(txRequestData.data);
@@ -187,11 +197,17 @@ export function useProcessBarCode(
 		);
 	}
 
-	async function processBarCode(txRequestData: TxRequestData): Promise<void> {
+	async function processBarCode(
+		txRequestData: TxRequestData
+	): Promise<undefined | string> {
 		try {
 			const parsedData = await parseQrData(txRequestData);
 			if (isNetworkParsedData(parsedData)) {
-				return addNewNetwork(parsedData);
+				addNewNetwork(parsedData);
+				return;
+			}
+			if (isAddressParsedData(parsedData)) {
+				return parsedData.data.address;
 			}
 			const unsignedData = await checkMultiFramesData(parsedData);
 			if (unsignedData === null) return;
@@ -204,7 +220,7 @@ export function useProcessBarCode(
 			await unlockAndNavigationToSignedQR(qrInfo);
 			scannerStore.clearMultipartProgress();
 		} catch (e) {
-			return showAlertMessage(strings.ERROR_TITLE, e.message);
+			showAlertMessage(strings.ERROR_TITLE, e.message);
 		}
 	}
 
