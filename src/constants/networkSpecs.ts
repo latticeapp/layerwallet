@@ -90,7 +90,7 @@ const substrateNetworkBase: Record<string, SubstrateNetworkDefaultConstant> = {
 		isTestnet: true,
 		logo: require('res/img/logos/Edgeware.png'),
 		order: 1,
-		pathId: 'edgeware',
+		pathId: 'beresheet',
 		prefix: 7,
 		title: 'Beresheet',
 		unit: 'tEDG',

@@ -31,7 +31,13 @@ type NetworkTypesMap = {
 	[key: string]: RegisteredTypes;
 };
 const networkTypesMap: NetworkTypesMap = {
-	beresheet: { ...spec },
+	beresheet: {
+		typesBundle: {
+			spec: {
+				beresheet: spec.typesBundle.spec?.edgeware!
+			}
+		}
+	},
 	edgeware: { ...spec },
 	kusama: {}
 };

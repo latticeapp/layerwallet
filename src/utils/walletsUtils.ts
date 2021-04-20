@@ -14,6 +14,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
+import Keyring, { decodeAddress } from '@polkadot/keyring';
+import { KeyringPair } from '@polkadot/keyring/types';
 
 import { pathsRegex } from './regex';
 import { decryptData } from './native';
@@ -205,6 +207,18 @@ export const getWalletSeed = async (wallet: Wallet): Promise<string> => {
 	const seed = await decryptData(encryptedSeed, PIN);
 	const { phrase } = parseSURI(seed);
 	return phrase;
+};
+
+export const getWalletKeyring = async (
+	wallet: Wallet,
+	ss58Format: number
+): Promise<KeyringPair> => {
+	const { encryptedSeed, account } = wallet;
+	if (!account) throw new Error('No account in wallet!');
+	const seed = await decryptData(encryptedSeed, PIN);
+	const keyring = new Keyring({ ss58Format, type: 'sr25519' });
+	keyring.addFromUri(seed);
+	return keyring.getPair(account.address);
 };
 
 export const getExistedNetworkKeys = (wallet: Wallet): string[] => {

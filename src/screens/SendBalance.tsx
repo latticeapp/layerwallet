@@ -22,16 +22,21 @@ import Clipboard from '@react-native-community/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
 import { decodeAddress } from '@polkadot/keyring';
+import { DispatchError } from '@polkadot/types/interfaces';
+import BN from 'bn.js';
 
-import { components } from 'styles/index';
+import { colors, components } from 'styles/index';
 import { AddressBookContext } from 'stores/AddressBookContext';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsStoreStateWithWallet } from 'types/walletTypes';
 import { NavigationAccountWalletProps } from 'types/props';
 import { withCurrentWallet } from 'utils/HOC';
-import { getNetworkKey } from 'utils/walletsUtils';
+import { getNetworkKey, getWalletKeyring } from 'utils/walletsUtils';
 import Button from 'components/Button';
 import TextInput from 'components/TextInput';
+import { ApiContext } from 'stores/ApiContext';
+import { SubstrateNetworkParams } from 'types/networkTypes';
+import { SeedRefsContext, SeedRefsState } from 'stores/SeedRefStore';
 
 interface Props {
 	path: string;
@@ -44,16 +49,22 @@ function SendBalance({
 	navigation,
 	route
 }: NavigationAccountWalletProps<'SendBalance'>): React.ReactElement {
+	const { currentWallet } = accountsStore.state;
 	const path = route.params.path;
 	const networksContextState = useContext(NetworksContext);
 	const addressBookContextState = useContext(AddressBookContext);
+	const { state } = useContext(ApiContext);
+	const [seedRefs] = useContext<SeedRefsState>(SeedRefsContext);
+	const seedRef = seedRefs.get(currentWallet.encryptedSeed)!;
 
 	const networkKey = getNetworkKey(
 		path,
 		accountsStore.state.currentWallet,
 		networksContextState
 	);
-	const networkParams = networksContextState.getNetwork(networkKey ?? '');
+	const networkParams = networksContextState.getNetwork(
+		networkKey ?? ''
+	) as SubstrateNetworkParams;
 
 	const [amount, setAmount] = useState('');
 	const onChangeAmount = async (name: string): Promise<void> => {
@@ -61,6 +72,8 @@ function SendBalance({
 	};
 
 	const [recipient, setRecipient] = useState('');
+	const [sendResultText, setSendResultText] = useState('');
+	const [isSendResultError, setIsSendResultError] = useState(false);
 
 	const [newAddressBookEntry, setNewAddressBookEntry] = useState('');
 	const [newAddressBookEntryIsValid, setNewAddressBookEntryIsValid] = useState(
@@ -83,6 +96,57 @@ function SendBalance({
 			setNewAddressBookEntry(newEntry);
 			setNewAddressBookEntryIsValid(false);
 		}
+	};
+
+	const onSend = async (sendAmount: string, to: string): Promise<void> => {
+		if (!state || !state.api || !state.isApiReady) {
+			setSendResultText('API not initialized!');
+			setIsSendResultError(true);
+			return;
+		}
+		setSendResultText('Sending...');
+		const amountWei = new BN(sendAmount).mul(
+			new BN('10').pow(new BN(networkParams.decimals))
+		);
+		const keyring = await getWalletKeyring(currentWallet, networkParams.prefix);
+		return new Promise(resolve => {
+			state?.api?.tx.balances
+				.transferKeepAlive(to, amountWei)
+				.signAndSend(keyring, result => {
+					if (result.status.isFinalized || result.status.isInBlock) {
+						for (const e of result.events) {
+							if (state?.api?.events.system.ExtrinsicSuccess.is(e.event)) {
+								setSendResultText('Transfer success!');
+								resolve();
+							} else if (
+								state?.api?.events.system.ExtrinsicFailed.is(e.event)
+							) {
+								const errorData = e.event.data[0] as DispatchError;
+								let errorInfo: string;
+								if (errorData.isModule) {
+									const details = state.api.registry.findMetaError(
+										errorData.asModule.toU8a()
+									);
+									errorInfo = `${details.section}::${details.name}: ${details.documentation[0]}`;
+								} else if (errorData.isBadOrigin) {
+									errorInfo = 'TX Error: invalid sender origin';
+								} else if (errorData.isCannotLookup) {
+									errorInfo = 'TX Error: cannot lookup call';
+								} else {
+									errorInfo = 'TX Error: unknown';
+								}
+								setSendResultText(errorInfo);
+								setIsSendResultError(true);
+								resolve();
+							}
+						}
+					} else if (result.isError) {
+						setSendResultText('An error occurred.');
+						setIsSendResultError(true);
+						resolve();
+					}
+				});
+		});
 	};
 
 	const [addingNewAddress, setAddingNewAddress] = useState(false);
@@ -229,13 +293,23 @@ function SendBalance({
 				<Button
 					title="Send"
 					fluid={true}
+					disabled={!!sendResultText}
 					onPress={(): void => {
 						if (!amount || !recipient) return;
-						showMessage(
-							`TODO: Send ${amount} ${networkParams.unit} to ${recipient}`
-						);
+						onSend(amount, recipient);
 					}}
 				/>
+			)}
+			{!!sendResultText && (
+				<View>
+					<Text
+						style={{
+							color: isSendResultError ? colors.text.error : colors.text.accent
+						}}
+					>
+						{sendResultText}
+					</Text>
+				</View>
 			)}
 		</View>
 	);
