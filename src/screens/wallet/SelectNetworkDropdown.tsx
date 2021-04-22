@@ -104,7 +104,7 @@ export function SelectNetworkDropdown({
 	return (
 		<DropDownPicker
 			items={items}
-			defaultValue={defaultValue}
+			defaultValue={`${defaultValue}-1`}
 			containerStyle={components.dropdownContainer}
 			style={components.dropdown}
 			globalTextStyle={components.dropdownText}
