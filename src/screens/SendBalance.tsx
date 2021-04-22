@@ -16,12 +16,9 @@
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
 import React, { useContext, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { showMessage } from 'react-native-flash-message';
-import Clipboard from '@react-native-community/clipboard';
+import { View, Text } from 'react-native';
+import { StackActions } from '@react-navigation/native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import Icon from 'react-native-vector-icons/Feather';
-import { decodeAddress } from '@polkadot/keyring';
 import { DispatchError } from '@polkadot/types/interfaces';
 import BN from 'bn.js';
 
@@ -36,7 +33,6 @@ import Button from 'components/Button';
 import TextInput from 'components/TextInput';
 import { ApiContext } from 'stores/ApiContext';
 import { SubstrateNetworkParams } from 'types/networkTypes';
-import { SeedRefsContext, SeedRefsState } from 'stores/SeedRefStore';
 
 interface Props {
 	path: string;
@@ -54,8 +50,6 @@ function SendBalance({
 	const networksContextState = useContext(NetworksContext);
 	const addressBookContextState = useContext(AddressBookContext);
 	const { state } = useContext(ApiContext);
-	const [seedRefs] = useContext<SeedRefsState>(SeedRefsContext);
-	const seedRef = seedRefs.get(currentWallet.encryptedSeed)!;
 
 	const networkKey = getNetworkKey(
 		path,
@@ -74,29 +68,6 @@ function SendBalance({
 	const [recipient, setRecipient] = useState('');
 	const [sendResultText, setSendResultText] = useState('');
 	const [isSendResultError, setIsSendResultError] = useState(false);
-
-	const [newAddressBookEntry, setNewAddressBookEntry] = useState('');
-	const [newAddressBookEntryIsValid, setNewAddressBookEntryIsValid] = useState(
-		true
-	);
-	const onChangeNewAddressBookEntry = async (
-		newEntry: string
-	): Promise<void> => {
-		if (!newEntry) {
-			setNewAddressBookEntry(newEntry);
-			setNewAddressBookEntryIsValid(true);
-			return;
-		}
-		try {
-			const decoded = decodeAddress(newEntry);
-			console.log('decoded:', decoded);
-			setNewAddressBookEntry(newEntry);
-			setNewAddressBookEntryIsValid(true);
-		} catch (e) {
-			setNewAddressBookEntry(newEntry);
-			setNewAddressBookEntryIsValid(false);
-		}
-	};
 
 	const onSend = async (sendAmount: string, to: string): Promise<void> => {
 		if (!state || !state.api || !state.isApiReady) {
@@ -149,8 +120,6 @@ function SendBalance({
 		});
 	};
 
-	const [addingNewAddress, setAddingNewAddress] = useState(false);
-
 	return (
 		<View style={components.page}>
 			<TextInput
@@ -162,144 +131,68 @@ function SendBalance({
 				autoCorrect={false}
 				keyboardType="numeric"
 			/>
-			{!addingNewAddress && (
-				<>
-					<View
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							marginBottom: 8,
-							marginTop: 12
-						}}
-					>
-						<Text style={components.textInputLabelLeft}>Recipient</Text>
-					</View>
-					<DropDownPicker
-						items={addressBookContextState
-							.getAddressBookEntries()
-							.map(a => ({
-								label: a,
-								value: a
-							}))
-							.concat([
-								{
-									icon: (): React.ReactElement => (
-										<Icon name="plus" size={18} color="#111" />
-									),
-									label: 'Add new address',
-									value: 'new'
-								}
-							])}
-						defaultValue={recipient}
-						value={recipient}
-						containerStyle={components.dropdownContainer}
-						style={components.dropdown}
-						globalTextStyle={components.dropdownText}
-						placeholderStyle={components.dropdownPlaceholder}
-						itemStyle={components.dropdownItem}
-						dropDownStyle={components.dropdownDropdown}
-						placeholder="Select an address"
-						onChangeItem={(item): void => {
-							if (item.value === 'new') {
-								setAddingNewAddress(true);
-								setRecipient(null);
-							} else {
-								setAddingNewAddress(false);
-								setRecipient(item.value);
-							}
-						}}
-					/>
-				</>
-			)}
-			{addingNewAddress ? (
-				<View>
-					<TextInput
-						label="New recipient"
-						clearButtonMode="unless-editing"
-						labelRight={
-							<View
-								style={{
-									display: 'flex',
-									flexDirection: 'row',
-									justifyContent: 'flex-end'
-								}}
-							>
-								<TouchableOpacity
-									onPress={(): void => {
-										navigation.navigate('QrScanner', {
-											setAddress: (address: string) => {
-												setNewAddressBookEntry(address);
-											}
-										});
-									}}
-									style={{ marginRight: 10 }}
-								>
-									<Text style={components.linkSmall}>Scan QR</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									onPress={async (): void => {
-										const newEntry = await Clipboard.getString();
-										onChangeNewAddressBookEntry(newEntry);
-										// TODO: Set focus
-									}}
-								>
-									<Text style={components.linkSmall}>Paste</Text>
-								</TouchableOpacity>
-							</View>
-						}
-						onChangeText={onChangeNewAddressBookEntry}
-						value={newAddressBookEntry}
-						placeholder="Address"
-						fluid={true}
-						autoCorrect={false}
-					/>
-					<View
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							justifyContent: 'space-between',
-							paddingTop: 8
-						}}
-					>
-						<Button
-							title={
-								newAddressBookEntryIsValid ? 'Add recipient' : 'Invalid address'
-							}
-							fluid={true}
-							disabled={!newAddressBookEntry || !newAddressBookEntryIsValid}
-							style={{ width: '62%' }}
-							onPress={(): void => {
-								if (!newAddressBookEntry) return;
-								addressBookContextState.saveAddressBookEntry(
-									newAddressBookEntry
-								);
-								onChangeNewAddressBookEntry('');
-								setAddingNewAddress(false);
-								setRecipient(newAddressBookEntry);
-							}}
-						/>
-						<Button
-							title="Cancel"
-							fluid={true}
-							style={{ width: '35%' }}
-							secondary={true}
-							onPress={(): void => {
-								setAddingNewAddress(false);
-							}}
-						/>
-					</View>
-				</View>
-			) : (
-				<Button
-					title="Send"
-					fluid={true}
-					disabled={!!sendResultText}
-					onPress={(): void => {
-						if (!amount || !recipient) return;
-						onSend(amount, recipient);
-					}}
-				/>
-			)}
+			<View
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					marginBottom: 8,
+					marginTop: 12
+				}}
+			>
+				<Text style={components.textInputLabelLeft}>Recipient</Text>
+			</View>
+			<DropDownPicker
+				items={addressBookContextState.getAddressBookEntries().map(a => ({
+					label: a,
+					value: a
+				}))}
+				defaultValue={recipient}
+				value={recipient}
+				dropDownMaxHeight={400}
+				containerStyle={components.dropdownContainer}
+				style={components.dropdown}
+				globalTextStyle={components.dropdownText}
+				placeholderStyle={components.dropdownPlaceholder}
+				itemStyle={components.dropdownItem}
+				dropDownStyle={components.dropdownDropdown}
+				placeholder="Select an address"
+				onChangeItem={(item): void => {
+					setRecipient(item.value);
+				}}
+			/>
+			<Button
+				title="Add new address"
+				fluid={true}
+				secondary={true}
+				style={{
+					marginBottom: 20,
+					marginTop: -5
+				}}
+				onPress={(): void => {
+					navigation.dispatch(StackActions.push('SendBalanceAddAddress'));
+				}}
+			/>
+			<Button
+				title="Clear"
+				fluid={true}
+				secondary={true}
+				style={{
+					marginBottom: 20,
+					marginTop: -10
+				}}
+				onPress={(): void => {
+					setRecipient(null);
+				}}
+			/>
+			<Button
+				title="Send"
+				fluid={true}
+				disabled={!!sendResultText}
+				onPress={(): void => {
+					if (!amount || !recipient) return;
+					onSend(amount, recipient);
+				}}
+			/>
 			{!!sendResultText && (
 				<View>
 					<Text

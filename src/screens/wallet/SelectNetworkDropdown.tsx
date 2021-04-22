@@ -19,7 +19,7 @@ import React, { ReactElement, useContext } from 'react';
 import DropDownPicker, { ItemType } from 'react-native-dropdown-picker';
 import { showMessage } from 'react-native-flash-message';
 
-import { components, fonts } from 'styles/index';
+import { components } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { isSubstrateNetworkParams, NetworkParams } from 'types/networkTypes';
 import { useSeedRef } from 'utils/seedRefHooks';
@@ -91,8 +91,8 @@ export function SelectNetworkDropdown({
 	networks.forEach(([key, nParams]) => {
 		items.push({
 			label: nParams.title,
-			value: key,
-			untouchable: true
+			untouchable: true,
+			value: key
 		});
 		items.push({
 			label: nParams.url,

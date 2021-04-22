@@ -36,6 +36,7 @@ import CreateWalletImport from 'screens/CreateWalletImport';
 import Settings from 'screens/Settings';
 import ReceiveBalance from 'screens/ReceiveBalance';
 import SendBalance from 'screens/SendBalance';
+import SendBalanceAddAddress from 'screens/SendBalanceAddAddress';
 import QrScanner from 'screens/signer/QrScanner';
 import SignTransactionFinish from 'screens/signer/SignTransactionFinish';
 import { RootStackParamList } from 'types/routes';
@@ -114,6 +115,9 @@ const stackNavigationOptions = {
 			case 'SendBalance':
 				title = 'Send Balance';
 				break;
+			case 'SendBalanceAddAddress':
+				title = 'Add to Address Book';
+				break;
 			case 'QrScanner':
 				title = 'Scan QR Code';
 				break;
@@ -174,6 +178,10 @@ export const AppNavigator = (): React.ReactElement => (
 		/>
 		<ScreenStack.Screen name="ReceiveBalance" component={ReceiveBalance} />
 		<ScreenStack.Screen name="SendBalance" component={SendBalance} />
+		<ScreenStack.Screen
+			name="SendBalanceAddAddress"
+			component={SendBalanceAddAddress}
+		/>
 		<ScreenStack.Screen name="QrScanner" component={QrScanner} />
 		<ScreenStack.Screen
 			name="SignTransactionFinish"

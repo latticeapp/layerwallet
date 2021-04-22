@@ -41,6 +41,7 @@ export function useAddressBookContext(): AddressBookContextState {
 			shallowCopyAddressBook.push(address);
 		}
 		saveAddressBook(shallowCopyAddressBook);
+		state.addressBook = shallowCopyAddressBook;
 	}
 
 	function removeAddressBookEntry(address: string): void {
@@ -50,6 +51,7 @@ export function useAddressBookContext(): AddressBookContextState {
 			shallowCopyAddressBook.splice(index, 1);
 		}
 		saveAddressBook(shallowCopyAddressBook);
+		state.addressBook = shallowCopyAddressBook;
 	}
 
 	function getAddressBookEntries(): string[] {
