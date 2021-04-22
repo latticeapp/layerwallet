@@ -14,7 +14,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
-import Keyring, { decodeAddress } from '@polkadot/keyring';
+import Keyring from '@polkadot/keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
 
 import { pathsRegex } from './regex';

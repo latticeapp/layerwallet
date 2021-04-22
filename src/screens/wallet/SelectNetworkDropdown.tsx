@@ -19,7 +19,7 @@ import React, { ReactElement, useContext } from 'react';
 import DropDownPicker, { ItemType } from 'react-native-dropdown-picker';
 import { showMessage } from 'react-native-flash-message';
 
-import { components } from 'styles/index';
+import { components, fonts } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { isSubstrateNetworkParams, NetworkParams } from 'types/networkTypes';
 import { useSeedRef } from 'utils/seedRefHooks';
@@ -43,8 +43,9 @@ export function SelectNetworkDropdown({
 	const seedRefHooks = useSeedRef(currentWallet.encryptedSeed);
 
 	const onNetworkChosen = async (item: ItemType): Promise<void> => {
-		const networkKey = item.value;
+		const networkKey = item.value.split('-')[0];
 		const networkParams = allNetworks.get(networkKey)!;
+		if (!networkParams) return;
 
 		// remove existing network (TODO: remove)
 		accountsStore.clearAddress();
@@ -86,17 +87,28 @@ export function SelectNetworkDropdown({
 		}
 	};
 
+	const items = [];
+	networks.forEach(([key, nParams]) => {
+		items.push({
+			label: nParams.title,
+			value: key,
+			untouchable: true
+		});
+		items.push({
+			label: nParams.url,
+			parent: key,
+			value: `${key}-1`
+		});
+	});
 
 	return (
 		<DropDownPicker
-			items={networks.map(([key, nParams]) => ({
-				label: nParams.title,
-				value: key
-			}))}
+			items={items}
 			defaultValue={defaultValue}
 			containerStyle={components.dropdownContainer}
 			style={components.dropdown}
 			globalTextStyle={components.dropdownText}
+			dropDownMaxHeight={400}
 			placeholder="Select a network"
 			placeholderStyle={components.dropdownPlaceholder}
 			itemStyle={components.dropdownItem}

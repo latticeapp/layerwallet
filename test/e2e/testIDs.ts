@@ -47,6 +47,9 @@ const testIDs = {
 		popupMenuButton: 'path_detail_popup_menu_button',
 		screen: 'path_detail_screen'
 	},
+	QrScanner: {
+		networkAddSuccessButton: 'qr_scanner_add_network_button'
+	},
 	RenameWallet: {
 		deleteButton: 'wallet_management_delete_button',
 		popupMenuButton: 'wallet_management_popup_menu'
@@ -55,9 +58,6 @@ const testIDs = {
 		nextButton: 'wallet_backup_next',
 		passwordInput: 'wallet_backup_password_input',
 		seedText: 'wallet_backup_seed'
-	},
-	QrScanner: {
-		networkAddSuccessButton: 'qr_scanner_add_network_button'
 	},
 	SignTransactionFinish: {
 		qrView: 'signed_tx_qr_view'
