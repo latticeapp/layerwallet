@@ -21,9 +21,10 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { NetworkCard } from './NetworkCard';
 import { SelectNetworkDropdown } from './SelectNetworkDropdown';
+import { WalletConnectionBar } from './WalletConnectionBar';
 
 import { UnknownNetworkKeys } from 'constants/networkSpecs';
-import { components, colors, fonts, fontStyles } from 'styles/index';
+import { components, fontStyles } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
 import testIDs from 'e2e/testIDs';
@@ -35,51 +36,6 @@ import { NavigationProps } from 'types/props';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Onboarding from 'components/Onboarding';
 import NavigationTab from 'components/NavigationTab';
-import { ApiContext } from 'stores/ApiContext';
-
-function WalletConnectionBar({
-	isDeriving
-}: {
-	isDeriving: boolean;
-}): React.ReactElement | null {
-	const { state } = useContext(ApiContext);
-	const text = isDeriving
-		? 'Deriving account...'
-		: state.apiError
-		? `ERROR: ${state.apiError}`
-		: !state.isApiInitialized
-		? 'Waiting for API connection...'
-		: !state.isApiConnected
-		? 'Connecting to API...'
-		: !state.isApiReady
-		? 'Connecting to API...'
-		: null;
-	if (text === null) return null;
-
-	return (
-		<View
-			style={{
-				backgroundColor: colors.background.accentAlternate,
-				paddingBottom: 13,
-				paddingHorizontal: 24,
-				paddingTop: 14,
-				position: 'relative',
-				top: -24,
-				width: '100%'
-			}}
-		>
-			<Text
-				style={{
-					color: colors.text.dark,
-					fontFamily: fonts.regular,
-					fontSize: 16
-				}}
-			>
-				{text}
-			</Text>
-		</View>
-	);
-}
 
 function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);

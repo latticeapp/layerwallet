@@ -33,6 +33,7 @@ import CreateWallet from 'screens/CreateWallet';
 import CreateWallet2 from 'screens/CreateWallet2';
 import CreateWallet3 from 'screens/CreateWallet3';
 import CreateWalletImport from 'screens/CreateWalletImport';
+import CustomNetwork from 'screens/wallet/CustomNetwork';
 import Settings from 'screens/Settings';
 import ReceiveBalance from 'screens/ReceiveBalance';
 import SendBalance from 'screens/SendBalance';
@@ -100,6 +101,9 @@ const stackNavigationOptions = {
 				break;
 			case 'CreateWalletImport':
 				title = 'Create Wallet';
+				break;
+			case 'CustomNetwork':
+				title = 'Custom Network';
 				break;
 			case 'Settings':
 				title = 'Settings';
@@ -171,6 +175,7 @@ export const AppNavigator = (): React.ReactElement => (
 			name="CreateWalletImport"
 			component={CreateWalletImport}
 		/>
+		<ScreenStack.Screen name="CustomNetwork" component={CustomNetwork} />
 		<ScreenStack.Screen
 			name="Settings"
 			component={Settings}

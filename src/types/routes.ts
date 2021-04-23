@@ -9,6 +9,7 @@ export type RootStackParamList = {
 	CreateWallet2: undefined;
 	CreateWallet3: { seedPhrase: string };
 	CreateWalletImport: undefined;
+	CustomNetwork: undefined;
 	Settings: undefined;
 	MessageDetails: undefined;
 	Empty: undefined;
