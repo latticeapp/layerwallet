@@ -67,7 +67,7 @@ export function NetworkCard({
 	const { networks } = networksContextState;
 	const { getTypeRegistry } = useContext(RegistriesContext);
 
-	// initialize API (TODO: move out of wallet!)
+	// initialize API (TODO: move into unique hook, if possible)
 	useEffect(() => {
 		console.log('init hook called!');
 		if (!networkKey || !networkParams) {

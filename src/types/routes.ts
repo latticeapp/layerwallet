@@ -17,7 +17,7 @@ export type RootStackParamList = {
 	SendBalance: { path: string };
 	SendBalanceAddAddress: { path: string };
 	Security: undefined;
-	QrScanner: { setAddress?: (address: string) => void };
+	QrScanner: { setAddress?: (address: string) => void } | undefined;
 	SignTransactionFinish: undefined;
 	TxDetails: undefined;
 };

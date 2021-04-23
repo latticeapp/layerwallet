@@ -26,6 +26,10 @@ import Button from 'components/Button';
 import TextInput from 'components/TextInput';
 import NavigationTab from 'components/NavigationTab';
 
+// TODO: take network key/params for chain we're using a custom network on
+// TODO: take pre-populated network param
+// TODO: ensure the bar shows something useful and that we prompt a redirect
+//    back on successful save.
 function CustomNetwork({
 	navigation
 }: NavigationProps<'CustomNetwork'>): React.ReactElement {
