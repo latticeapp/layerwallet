@@ -49,12 +49,14 @@ const EMPTY_STATE: State = {
 export function NetworkCard({
 	networkKey,
 	title,
+	url,
 	wallet
 }: {
 	networkKey?: string;
 	onPress?: ButtonListener;
 	testID?: string;
 	title: string;
+	url: string;
 	wallet: Wallet;
 }): ReactElement {
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
@@ -69,7 +71,7 @@ export function NetworkCard({
 
 	// initialize API (TODO: move into unique hook, if possible)
 	useEffect(() => {
-		console.log('init hook called!');
+		console.log(`init hook called: ${url}`);
 		if (!networkKey || !networkParams) {
 			// if removing network, ensure we disconnect manually
 			if (state.isApiInitialized) {
@@ -77,20 +79,19 @@ export function NetworkCard({
 			}
 			return;
 		}
-		if (!isSubstrateNetworkParams(networkParams) || !networkParams.url) return;
+		if (!isSubstrateNetworkParams(networkParams) || !url) return;
 		const registryData = getTypeRegistry(networks, networkKey);
 		if (!registryData) return;
 		const [registry, metadata] = registryData;
-		initApi(networkKey, networkParams.url, registry, metadata);
-	}, [networkKey, state.isApiReady]);
+		initApi(networkKey, url, registry, metadata);
+	}, [url, state.isApiReady]);
 
 	// initialize balances
 	useEffect((): void | (() => void) => {
 		console.log('balances hook called!');
 		if (state.isApiReady) {
 			if (!networkKey || !networkParams) return;
-			if (!isSubstrateNetworkParams(networkParams) || !networkParams.url)
-				return;
+			if (!isSubstrateNetworkParams(networkParams) || !url) return;
 			console.log(`Use API: ${networkKey}`);
 			const path = `//${networkParams.pathId}`;
 			const address = getAddressWithPath(path, wallet);
@@ -119,7 +120,7 @@ export function NetworkCard({
 				};
 			}
 		}
-	}, [state.isApiReady, wallet, networkKey]);
+	}, [url, state.isApiReady, wallet]);
 
 	const onPressed = async (isSend: boolean): Promise<void> => {
 		if (isSubstrateNetworkParams(networkParams)) {

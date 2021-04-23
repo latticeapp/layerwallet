@@ -1,3 +1,4 @@
+import { SubstrateNetworkParams } from './networkTypes';
 import { Wallet } from './walletTypes';
 
 export type RootStackParamList = {
@@ -9,7 +10,10 @@ export type RootStackParamList = {
 	CreateWallet2: undefined;
 	CreateWallet3: { seedPhrase: string };
 	CreateWalletImport: undefined;
-	CustomNetwork: undefined;
+	CustomNetwork: {
+		url: string;
+		setUrl: (url: string) => void;
+	};
 	Settings: undefined;
 	MessageDetails: undefined;
 	Empty: undefined;

@@ -18,22 +18,26 @@
 import React, { ReactElement, useContext } from 'react';
 import DropDownPicker, { ItemType } from 'react-native-dropdown-picker';
 import { showMessage } from 'react-native-flash-message';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 import { components } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { isSubstrateNetworkParams, NetworkParams } from 'types/networkTypes';
 import { useSeedRef } from 'utils/seedRefHooks';
 import { AccountsContext } from 'stores/AccountsContext';
+import { RootStackParamList } from 'types/routes';
 import { Wallet } from 'types/walletTypes';
 
 export function SelectNetworkDropdown({
 	currentWallet,
 	defaultValue,
+	navigation,
 	networks,
 	setIsDeriving
 }: {
 	currentWallet: Wallet;
 	defaultValue?: string;
+	navigation: StackNavigationProp<RootStackParamList, 'Wallet'>;
 	networks: [string, NetworkParams][];
 	setIsDeriving: (isDeriving: boolean) => void;
 }): ReactElement {
@@ -43,7 +47,7 @@ export function SelectNetworkDropdown({
 	const seedRefHooks = useSeedRef(currentWallet.encryptedSeed);
 
 	const onNetworkChosen = async (item: ItemType): Promise<void> => {
-		const networkKey = item.value.split('-')[0];
+		const [networkKey, networkType] = item.value.split('-');
 		const networkParams = allNetworks.get(networkKey)!;
 		if (!networkParams) return;
 
@@ -70,6 +74,12 @@ export function SelectNetworkDropdown({
 					'Could not derive a valid account from the seed: ' + error.message
 				);
 				return;
+			}
+
+			// redirect if using custom node
+			if (networkType === 'custom') {
+				// TODO
+				// navigation.navigate('CustomNetwork', { networkKey, networkParams });
 			}
 		} else {
 			// derive ethereum account
@@ -98,6 +108,11 @@ export function SelectNetworkDropdown({
 			label: nParams.url,
 			parent: key,
 			value: `${key}-1`
+		});
+		items.push({
+			label: '+ Custom...',
+			parent: key,
+			value: `${key}-custom`
 		});
 	});
 

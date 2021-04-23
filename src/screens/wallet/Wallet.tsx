@@ -113,6 +113,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 					<SelectNetworkDropdown
 						currentWallet={currentWallet}
 						defaultValue={networkKey}
+						navigation={navigation}
 						networks={Array.from(allNetworks.entries()).filter(
 							([key, _nParams]) => key !== UnknownNetworkKeys.UNKNOWN
 						)}

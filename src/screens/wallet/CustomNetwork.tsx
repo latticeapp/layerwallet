@@ -31,15 +31,20 @@ import NavigationTab from 'components/NavigationTab';
 // TODO: ensure the bar shows something useful and that we prompt a redirect
 //    back on successful save.
 function CustomNetwork({
-	navigation
+	navigation,
+	route: {
+		params: { url, setUrl }
+	}
 }: NavigationProps<'CustomNetwork'>): React.ReactElement {
-	const [customUrl, setCustomUrl] = useState('');
-	const updateUrl = (url: string): void => {
-		setCustomUrl(url);
+	const [customUrl, setCustomUrl] = useState(url);
+	const updateUrl = (newUrl: string): void => {
+		setCustomUrl(newUrl);
 	};
 
 	const onSaveUrl = (): void => {
 		// TODO: init chain using customURL
+		setUrl(customUrl);
+		navigation.goBack();
 	};
 
 	return (
@@ -50,7 +55,6 @@ function CustomNetwork({
 				<TextInput
 					onChangeText={updateUrl}
 					value={customUrl}
-					placeholder="e.g. wss://mainnet1.edgewa.re"
 					autofocus={true}
 				/>
 				<Button title="Save" onPress={onSaveUrl} fluid={true} />
