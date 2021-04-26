@@ -27,6 +27,7 @@ import { useSeedRef } from 'utils/seedRefHooks';
 import { AccountsContext } from 'stores/AccountsContext';
 import { RootStackParamList } from 'types/routes';
 import { Wallet } from 'types/walletTypes';
+import { ApiContext } from 'stores/ApiContext';
 
 export function SelectNetworkDropdown({
 	currentWallet,
@@ -42,6 +43,7 @@ export function SelectNetworkDropdown({
 	setIsDeriving: (isDeriving: boolean) => void;
 }): ReactElement {
 	const accountsStore = useContext(AccountsContext);
+	const { initApi } = useContext(ApiContext);
 	const networkContextState = useContext(NetworksContext);
 	const { getSubstrateNetwork, allNetworks } = networkContextState;
 	const seedRefHooks = useSeedRef(currentWallet.encryptedSeed);
@@ -76,10 +78,13 @@ export function SelectNetworkDropdown({
 				return;
 			}
 
-			// redirect if using custom node
 			if (networkType === 'custom') {
-				// TODO
-				// navigation.navigate('CustomNetwork', { networkKey, networkParams });
+				// redirect if using custom node and do not init API
+				navigation.navigate('CustomNetwork', { networkKey });
+			} else {
+				// re-init on new default selection
+				console.log('calling reinit hook');
+				initApi(networkKey);
 			}
 		} else {
 			// derive ethereum account
@@ -97,8 +102,9 @@ export function SelectNetworkDropdown({
 		}
 	};
 
-	const items = [];
+	const items: ItemType[] = [];
 	networks.forEach(([key, nParams]) => {
+		if (!isSubstrateNetworkParams(nParams)) return;
 		items.push({
 			label: nParams.title,
 			untouchable: true,

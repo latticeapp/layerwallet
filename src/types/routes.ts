@@ -10,10 +10,7 @@ export type RootStackParamList = {
 	CreateWallet2: undefined;
 	CreateWallet3: { seedPhrase: string };
 	CreateWalletImport: undefined;
-	CustomNetwork: {
-		url: string;
-		setUrl: (url: string) => void;
-	};
+	CustomNetwork: { networkKey: string };
 	Settings: undefined;
 	MessageDetails: undefined;
 	Empty: undefined;

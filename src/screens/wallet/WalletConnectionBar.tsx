@@ -5,9 +5,11 @@ import { colors, fonts } from 'styles/index';
 import { ApiContext } from 'stores/ApiContext';
 
 export function WalletConnectionBar({
-	isDeriving
+	isDeriving,
+	showConnected
 }: {
 	isDeriving?: boolean;
+	showConnected?: boolean;
 }): React.ReactElement | null {
 	const { state } = useContext(ApiContext);
 	const text = isDeriving
@@ -20,6 +22,8 @@ export function WalletConnectionBar({
 		? 'Connecting to API...'
 		: !state.isApiReady
 		? 'Connecting to API...'
+		: showConnected
+		? 'Connected!'
 		: null;
 	if (text === null) return null;
 

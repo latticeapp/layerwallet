@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { View, Text, BackHandler } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -25,13 +25,10 @@ import { WalletConnectionBar } from './WalletConnectionBar';
 
 import { UnknownNetworkKeys } from 'constants/networkSpecs';
 import { components, fontStyles } from 'styles/index';
+import { ApiContext } from 'stores/ApiContext';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
-import testIDs from 'e2e/testIDs';
-import {
-	isEthereumNetworkParams,
-	isSubstrateNetworkParams
-} from 'types/networkTypes';
+import { isSubstrateNetworkParams } from 'types/networkTypes';
 import { NavigationProps } from 'types/props';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Onboarding from 'components/Onboarding';
@@ -40,9 +37,9 @@ import NavigationTab from 'components/NavigationTab';
 function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const { wallets, currentWallet, loaded } = accountsStore.state;
-	const networkContextState = useContext(NetworksContext);
+	const { allNetworks } = useContext(NetworksContext);
+	const { initApi } = useContext(ApiContext);
 	const [isDeriving, setIsDeriving] = useState(false);
-	const { allNetworks } = networkContextState;
 
 	// catch android back button and prevent exiting the app
 	useFocusEffect(
@@ -58,6 +55,14 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 
 	const networkKey = currentWallet?.account?.networkKey;
 	const networkParams = networkKey ? allNetworks.get(networkKey)! : undefined;
+
+	// first API init
+	useEffect((): void => {
+		console.log('calling first api init hook');
+		if (networkKey) {
+			initApi(networkKey);
+		}
+	}, [currentWallet?.account?.address]);
 
 	if (!loaded) return <View />;
 	if (wallets.length === 0) return <Onboarding />;
@@ -87,13 +92,9 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 
 	const renderNetwork = (): ReactElement => {
 		if (!networkKey || !networkParams) return <View />; // should never reach
-		const networkIndexSuffix = isEthereumNetworkParams(networkParams)
-			? networkParams.ethereumChainId
-			: networkParams.pathId;
 		return (
 			<NetworkCard
 				key={networkKey}
-				testID={testIDs.Wallet.networkButton + networkIndexSuffix}
 				networkKey={networkKey}
 				onPress={(): void => onNetworkChosen()}
 				title={networkParams.title}

@@ -35,7 +35,6 @@ import {
 } from 'utils/navigationHelpers';
 import { Wallet } from 'types/walletTypes';
 import { ApiContext } from 'stores/ApiContext';
-import { RegistriesContext } from 'stores/RegistriesContext';
 import { getAddressWithPath } from 'utils/walletsUtils';
 
 interface State {
@@ -49,57 +48,34 @@ const EMPTY_STATE: State = {
 export function NetworkCard({
 	networkKey,
 	title,
-	url,
 	wallet
 }: {
 	networkKey?: string;
 	onPress?: ButtonListener;
-	testID?: string;
 	title: string;
-	url: string;
 	wallet: Wallet;
 }): ReactElement {
 	const navigation: StackNavigationProp<RootStackParamList> = useNavigation();
-	const networksContextState = useContext(NetworksContext);
-	const networkParams = networksContextState.getNetwork(networkKey ?? '');
+	const { getNetwork } = useContext(NetworksContext);
+	const networkParams = getNetwork(networkKey ?? '');
 	const [balance, setBalance] = useState(EMPTY_STATE);
-
-	// initialize the API using the first network the user has, if they have any
-	const { initApi, state, disconnect } = useContext(ApiContext);
-	const { networks } = networksContextState;
-	const { getTypeRegistry } = useContext(RegistriesContext);
-
-	// initialize API (TODO: move into unique hook, if possible)
-	useEffect(() => {
-		console.log(`init hook called: ${url}`);
-		if (!networkKey || !networkParams) {
-			// if removing network, ensure we disconnect manually
-			if (state.isApiInitialized) {
-				disconnect();
-			}
-			return;
-		}
-		if (!isSubstrateNetworkParams(networkParams) || !url) return;
-		const registryData = getTypeRegistry(networks, networkKey);
-		if (!registryData) return;
-		const [registry, metadata] = registryData;
-		initApi(networkKey, url, registry, metadata);
-	}, [url, state.isApiReady]);
+	const {
+		state: { isApiReady, api }
+	} = useContext(ApiContext);
 
 	// initialize balances
 	useEffect((): void | (() => void) => {
 		console.log('balances hook called!');
-		if (state.isApiReady) {
-			if (!networkKey || !networkParams) return;
-			if (!isSubstrateNetworkParams(networkParams) || !url) return;
+		if (isApiReady && networkKey) {
+			if (!isSubstrateNetworkParams(networkParams)) return;
 			console.log(`Use API: ${networkKey}`);
 			const path = `//${networkParams.pathId}`;
 			const address = getAddressWithPath(path, wallet);
 			const decimals = networkParams.decimals;
-			if (state.api?.derive?.balances) {
+			if (api?.derive?.balances) {
 				console.log(`FETCHING BALANCES: ${address}`);
 				let isMounted = true;
-				state.api.derive.balances
+				api.derive.balances
 					.all(address, fetchedBalance => {
 						const base = new BN(10).pow(new BN(decimals));
 						const div = fetchedBalance.availableBalance.div(base);
@@ -120,7 +96,7 @@ export function NetworkCard({
 				};
 			}
 		}
-	}, [url, state.isApiReady, wallet]);
+	}, [networkKey, wallet, isApiReady]);
 
 	const onPressed = async (isSend: boolean): Promise<void> => {
 		if (isSubstrateNetworkParams(networkParams)) {
