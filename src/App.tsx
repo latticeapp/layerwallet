@@ -69,7 +69,7 @@ export default function App(props: AppProps): React.ReactElement {
 	const addressBookContext = useAddressBookContext();
 	const scannerContext = useScannerContext();
 	const registriesContext = useRegistriesStore();
-	const apiContext = useApiContext();
+	const apiContext = useApiContext(networkContext, registriesContext);
 
 	const [hasInitializedOnce, setHasInitializedOnce] = React.useState(true);
 	React.useEffect(() => {

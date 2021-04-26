@@ -18,32 +18,38 @@
 import React, { ReactElement, useContext } from 'react';
 import DropDownPicker, { ItemType } from 'react-native-dropdown-picker';
 import { showMessage } from 'react-native-flash-message';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 import { components } from 'styles/index';
 import { NetworksContext } from 'stores/NetworkContext';
 import { isSubstrateNetworkParams, NetworkParams } from 'types/networkTypes';
 import { useSeedRef } from 'utils/seedRefHooks';
 import { AccountsContext } from 'stores/AccountsContext';
+import { RootStackParamList } from 'types/routes';
 import { Wallet } from 'types/walletTypes';
+import { ApiContext } from 'stores/ApiContext';
 
 export function SelectNetworkDropdown({
 	currentWallet,
 	defaultValue,
+	navigation,
 	networks,
 	setIsDeriving
 }: {
 	currentWallet: Wallet;
 	defaultValue?: string;
+	navigation: StackNavigationProp<RootStackParamList, 'Wallet'>;
 	networks: [string, NetworkParams][];
 	setIsDeriving: (isDeriving: boolean) => void;
 }): ReactElement {
 	const accountsStore = useContext(AccountsContext);
+	const { initApi } = useContext(ApiContext);
 	const networkContextState = useContext(NetworksContext);
 	const { getSubstrateNetwork, allNetworks } = networkContextState;
 	const seedRefHooks = useSeedRef(currentWallet.encryptedSeed);
 
 	const onNetworkChosen = async (item: ItemType): Promise<void> => {
-		const networkKey = item.value.split('-')[0];
+		const [networkKey, networkType] = item.value.split('-');
 		const networkParams = allNetworks.get(networkKey)!;
 		if (!networkParams) return;
 
@@ -71,6 +77,15 @@ export function SelectNetworkDropdown({
 				);
 				return;
 			}
+
+			if (networkType === 'custom') {
+				// redirect if using custom node and do not init API
+				navigation.navigate('CustomNetwork', { networkKey });
+			} else {
+				// re-init on new default selection
+				console.log('calling reinit hook');
+				initApi(networkKey);
+			}
 		} else {
 			// derive ethereum account
 			try {
@@ -87,8 +102,9 @@ export function SelectNetworkDropdown({
 		}
 	};
 
-	const items = [];
+	const items: ItemType[] = [];
 	networks.forEach(([key, nParams]) => {
+		if (!isSubstrateNetworkParams(nParams)) return;
 		items.push({
 			label: nParams.title,
 			untouchable: true,
@@ -98,6 +114,11 @@ export function SelectNetworkDropdown({
 			label: nParams.url,
 			parent: key,
 			value: `${key}-1`
+		});
+		items.push({
+			label: '+ Custom...',
+			parent: key,
+			value: `${key}-custom`
 		});
 	});
 

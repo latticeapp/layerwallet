@@ -1,3 +1,4 @@
+import { SubstrateNetworkParams } from './networkTypes';
 import { Wallet } from './walletTypes';
 
 export type RootStackParamList = {
@@ -9,6 +10,7 @@ export type RootStackParamList = {
 	CreateWallet2: undefined;
 	CreateWallet3: { seedPhrase: string };
 	CreateWalletImport: undefined;
+	CustomNetwork: { networkKey: string };
 	Settings: undefined;
 	MessageDetails: undefined;
 	Empty: undefined;
@@ -16,7 +18,7 @@ export type RootStackParamList = {
 	SendBalance: { path: string };
 	SendBalanceAddAddress: { path: string };
 	Security: undefined;
-	QrScanner: { setAddress?: (address: string) => void };
+	QrScanner: { setAddress?: (address: string) => void } | undefined;
 	SignTransactionFinish: undefined;
 	TxDetails: undefined;
 };

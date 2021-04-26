@@ -1,13 +1,18 @@
-import React, { useReducer } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { ApiPromise } from '@polkadot/api/promise';
 import { WsProvider } from '@polkadot/rpc-provider';
 import { TypeRegistry } from '@polkadot/types';
 
+import { NetworksContext, NetworksContextState } from './NetworkContext';
+import { RegistriesContext, RegistriesStoreState } from './RegistriesContext';
+
+import { isSubstrateNetworkParams } from 'types/networkTypes';
+
 export type ApiStoreState = {
 	api: ApiPromise | null;
 	apiError: string | null;
-	apiNetworkKey: string;
+	url: string;
 	isApiConnected: boolean;
 	isApiInitialized: boolean;
 	isApiReady: boolean;
@@ -15,25 +20,26 @@ export type ApiStoreState = {
 
 export type ApiContextState = {
 	state: ApiStoreState;
-	initApi: (
-		networkKey: string,
-		url: string,
-		registry?: TypeRegistry,
-		metadata?: Record<string, string>
-	) => void;
+	initApi: (networkKey: string, url?: string) => void;
 	disconnect: () => void;
 };
 
 const defaultApiState = {
 	api: null,
 	apiError: null,
-	apiNetworkKey: '',
 	isApiConnected: false,
 	isApiInitialized: false,
-	isApiReady: false
+	isApiReady: false,
+	url: ''
 };
 
-export function useApiContext(): ApiContextState {
+export function useApiContext(
+	networksContext: NetworksContextState,
+	registriesContext: RegistriesStoreState
+): ApiContextState {
+	const { networks, getNetwork } = networksContext;
+	const { getTypeRegistry } = registriesContext;
+
 	const initialState: ApiStoreState = defaultApiState;
 	const reducer = (
 		state: ApiStoreState,
@@ -65,10 +71,10 @@ export function useApiContext(): ApiContextState {
 			setState({
 				api: null,
 				apiError: null,
-				apiNetworkKey: '',
 				isApiConnected: false,
 				isApiInitialized: false,
-				isApiReady: false
+				isApiReady: false,
+				url: ''
 			});
 			api.off('connected', onConnected);
 			api.off('disconnected', onDisconnected);
@@ -94,17 +100,23 @@ export function useApiContext(): ApiContextState {
 		await api.isReady;
 	}
 
-	function initApi(
-		networkKey: string,
-		url: string,
-		registry?: TypeRegistry,
-		metadata?: Record<string, string>
-	): void {
-		if (state.apiNetworkKey === networkKey) return;
+	function initApi(networkKey: string, url?: string): void {
+		// populate default url if omitted
+		if (!url) {
+			const networkParams = getNetwork(networkKey);
+			if (!isSubstrateNetworkParams(networkParams)) return;
+			url = networkParams.url;
+		}
+
+		// if not changing url, ignore call
+		if (state.url === url) return;
+		const registryData = getTypeRegistry(networks, networkKey);
+		if (!registryData) return;
+		const [registry, metadata] = registryData;
 		disconnect();
 
 		console.log(`CREATING API: ${url}`);
-		setState({ apiNetworkKey: networkKey });
+		setState({ url });
 		const provider = new WsProvider(url, false); // disable automatic reconnect
 		provider
 			.connect()

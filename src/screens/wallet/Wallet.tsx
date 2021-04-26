@@ -15,78 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Layer Wallet. If not, see <http://www.gnu.org/licenses/>.
 
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { View, Text, BackHandler } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { NetworkCard } from './NetworkCard';
 import { SelectNetworkDropdown } from './SelectNetworkDropdown';
+import { WalletConnectionBar } from './WalletConnectionBar';
 
 import { UnknownNetworkKeys } from 'constants/networkSpecs';
-import { components, colors, fonts, fontStyles } from 'styles/index';
+import { components, fontStyles } from 'styles/index';
+import { ApiContext } from 'stores/ApiContext';
 import { NetworksContext } from 'stores/NetworkContext';
 import { AccountsContext } from 'stores/AccountsContext';
-import testIDs from 'e2e/testIDs';
-import {
-	isEthereumNetworkParams,
-	isSubstrateNetworkParams
-} from 'types/networkTypes';
+import { isSubstrateNetworkParams } from 'types/networkTypes';
 import { NavigationProps } from 'types/props';
 import { navigateToReceiveBalance } from 'utils/navigationHelpers';
 import Onboarding from 'components/Onboarding';
 import NavigationTab from 'components/NavigationTab';
-import { ApiContext } from 'stores/ApiContext';
-
-function WalletConnectionBar({
-	isDeriving
-}: {
-	isDeriving: boolean;
-}): React.ReactElement | null {
-	const { state } = useContext(ApiContext);
-	const text = isDeriving
-		? 'Deriving account...'
-		: state.apiError
-		? `ERROR: ${state.apiError}`
-		: !state.isApiInitialized
-		? 'Waiting for API connection...'
-		: !state.isApiConnected
-		? 'Connecting to API...'
-		: !state.isApiReady
-		? 'Connecting to API...'
-		: null;
-	if (text === null) return null;
-
-	return (
-		<View
-			style={{
-				backgroundColor: colors.background.accentAlternate,
-				paddingBottom: 13,
-				paddingHorizontal: 24,
-				paddingTop: 14,
-				position: 'relative',
-				top: -24,
-				width: '100%'
-			}}
-		>
-			<Text
-				style={{
-					color: colors.text.dark,
-					fontFamily: fonts.regular,
-					fontSize: 16
-				}}
-			>
-				{text}
-			</Text>
-		</View>
-	);
-}
 
 function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 	const accountsStore = useContext(AccountsContext);
 	const { wallets, currentWallet, loaded } = accountsStore.state;
-	const networkContextState = useContext(NetworksContext);
+	const { allNetworks } = useContext(NetworksContext);
+	const { initApi } = useContext(ApiContext);
 	const [isDeriving, setIsDeriving] = useState(false);
-	const { allNetworks } = networkContextState;
 
 	// catch android back button and prevent exiting the app
 	useFocusEffect(
@@ -102,6 +55,14 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 
 	const networkKey = currentWallet?.account?.networkKey;
 	const networkParams = networkKey ? allNetworks.get(networkKey)! : undefined;
+
+	// first API init
+	useEffect((): void => {
+		console.log('calling first api init hook');
+		if (networkKey) {
+			initApi(networkKey);
+		}
+	}, [currentWallet?.account?.address]);
 
 	if (!loaded) return <View />;
 	if (wallets.length === 0) return <Onboarding />;
@@ -131,13 +92,9 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 
 	const renderNetwork = (): ReactElement => {
 		if (!networkKey || !networkParams) return <View />; // should never reach
-		const networkIndexSuffix = isEthereumNetworkParams(networkParams)
-			? networkParams.ethereumChainId
-			: networkParams.pathId;
 		return (
 			<NetworkCard
 				key={networkKey}
-				testID={testIDs.Wallet.networkButton + networkIndexSuffix}
 				networkKey={networkKey}
 				onPress={(): void => onNetworkChosen()}
 				title={networkParams.title}
@@ -157,6 +114,7 @@ function Wallet({ navigation }: NavigationProps<'Wallet'>): React.ReactElement {
 					<SelectNetworkDropdown
 						currentWallet={currentWallet}
 						defaultValue={networkKey}
+						navigation={navigation}
 						networks={Array.from(allNetworks.entries()).filter(
 							([key, _nParams]) => key !== UnknownNetworkKeys.UNKNOWN
 						)}
