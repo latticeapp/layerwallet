@@ -65,20 +65,22 @@ function CustomNetwork({
 		<>
 			<View style={components.pageWide}>
 				<WalletConnectionBar showConnected={true} />
-				<Text style={components.textBlock}>Custom Node </Text>
-				<TextInput
-					onChangeText={updateUrl}
-					value={customUrl}
-					autofocus={true}
-					disabled={isConnecting}
-				/>
-				<Button
-					title="Save"
-					disabled={!isValidWsUrl(customUrl) || isConnecting}
-					onPress={onSaveUrl}
-					fluid={true}
-				/>
-				<Button title="Back" onPress={onBack} fluid={true} />
+				<View style={{ paddingHorizontal: 20 }}>
+					<Text style={components.textBlock}>Custom Node </Text>
+					<TextInput
+						onChangeText={updateUrl}
+						value={customUrl}
+						autofocus={true}
+						disabled={isConnecting}
+					/>
+					<Button
+						title="Save"
+						disabled={!isValidWsUrl(customUrl) || isConnecting}
+						onPress={onSaveUrl}
+						fluid={true}
+					/>
+					<Button title="Back" onPress={onBack} fluid={true} secondary={true} />
+				</View>
 			</View>
 			<NavigationTab />
 		</>
